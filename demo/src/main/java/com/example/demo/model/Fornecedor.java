@@ -1,6 +1,8 @@
 package com.example.demo.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -26,7 +29,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Funcionario implements Serializable {
+public class Fornecedor implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,4 +81,6 @@ public class Funcionario implements Serializable {
     @Column(name = "n_empresa", nullable = false)
     private String numeroEmpresa;
 
+    @ManyToMany(mappedBy = "fornecedores")
+    private Set<Produto> produtos = new HashSet<>();
 }
