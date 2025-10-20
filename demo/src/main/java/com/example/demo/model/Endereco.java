@@ -51,7 +51,11 @@ public class Endereco implements Serializable {
     private EstadosBrasileiros estado;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
+
+    @ManyToOne
+    @JoinColumn(name = "idFornecedor")
+    private Fornecedor fornecedores;
 
 }

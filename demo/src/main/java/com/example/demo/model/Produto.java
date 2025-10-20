@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +34,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Produto {
+public class Produto  implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,14 +59,18 @@ public class Produto {
     @Column(nullable = false)
     private Integer estoque;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Muitos produtos para UMA categoria
-    @JoinColumn(name = "id_categoria", nullable = false) // Garante que todo produto tenha uma categoria
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
     @ManyToMany
-    @JoinTable(name = "produto_fornecedor", // Nome da tabela de junção
-            joinColumns = @JoinColumn(name = "id_produto"), // Chave estrangeira para Produto
-            inverseJoinColumns = @JoinColumn(name = "id_fornecedor") // Chave estrangeira para Fornecedor
-    )
+    @JoinTable(name = "produto_fornecedor", joinColumns = @JoinColumn(name = "id_produto"), inverseJoinColumns = @JoinColumn(name = "id_fornecedor"))
     private Set<Fornecedor> fornecedores = new HashSet<>();
+
+    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
+    private Set<ItemCarrinho> itensCarrinho = new HashSet<>();
+
+    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
+    private Set<ItemPedido> itensPedido = new HashSet<>();
+
 }

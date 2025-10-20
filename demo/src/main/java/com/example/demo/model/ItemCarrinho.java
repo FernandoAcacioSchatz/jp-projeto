@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Table(name = "tb_ite,_carrinho")
-public class ItemCarrinho {
+public class ItemCarrinho implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
