@@ -15,12 +15,12 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,16 +45,6 @@ public class Fornecedor implements Serializable {
     @Column(name = "nome", nullable = false)
     private String nome;
 
-    @NotBlank
-    @Email
-    @Column(name = "email", unique = true, nullable = false)
-    private String email;
-
-    @NotBlank
-    @Size(min = 6)
-    @Column(name = "senha", nullable = false)
-    private String senha;
-
     @Column(name = "telefone")
     private String telefone;
 
@@ -66,29 +56,13 @@ public class Fornecedor implements Serializable {
     @Column(name = "estado", nullable = false)
     private EstadosBrasileiros estado;
 
-    @NotBlank
-    @Column(name = "cidade", nullable = false)
-    private String cidade;
-
-    @NotBlank
-    @Column(name = "cep", nullable = false)
-    private String cep;
-
-    @NotBlank
-    @Column(name = "bairro", nullable = false)
-    private String bairro;
-
-    @NotBlank
-    @Column(name = "rua", nullable = false)
-    private String rua;
-
-    @NotBlank
-    @Column(name = "n_empresa", nullable = false)
-    private String numeroEmpresa;
-
     @ManyToMany(mappedBy = "fornecedores")
     private Set<Produto> produtos = new HashSet<>();
 
     @OneToMany(mappedBy = "fornecedores", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id_user")
+    private User user;
 }

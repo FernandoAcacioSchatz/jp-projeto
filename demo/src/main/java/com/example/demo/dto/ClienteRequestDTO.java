@@ -12,10 +12,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsuarioRequestDTO {
+public class ClienteRequestDTO {
 
     @NotBlank(message = "O nome é Obrigatório")
-    private String nomeUsuario;
+    private String nomeCliente;
 
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 8)

@@ -46,7 +46,7 @@ public class Pedido  implements Serializable{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario usuario;
+    private Cliente usuario;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private Set<ItemPedido> itens = new HashSet<>();

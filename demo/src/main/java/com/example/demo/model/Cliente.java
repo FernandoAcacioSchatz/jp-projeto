@@ -11,10 +11,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -24,32 +25,22 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tb_usuarios")
+@Table(name = "tb_clientes")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "idUsuario")
+@EqualsAndHashCode(of = "idCliente")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usuario implements Serializable {
+public class Cliente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
-    private Integer idUsuario;
+    @Column(name = "id_cliente")
+    private Integer idCliente;
 
     @NotBlank(message = "O nome é Obrigatório")
     @Column(nullable = false)
-    private String nomeUsuario;
-
-    @NotBlank(message = "A senha é obrigatória")
-    @Size(min = 8)
-    @Column(nullable = false)
-    private String senha;
-
-    @NotBlank(message = "O email é obtigatório")
-    @Email(message = "O formato do email é invalido")
-    @Column(unique = true, nullable = false)
-    private String email;
+    private String nomeCliente;
 
     private String telefone;
 
@@ -58,13 +49,16 @@ public class Usuario implements Serializable {
     @Column(unique = true, nullable = false)
     private String cpf;
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
     private List<Pedido> pedidos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<>();
 
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Carrinho carrinho;
 
+    @OneToOne(cascade = CascadeType.ALL) // IMPORTANTE: Cascade ALL
+    @JoinColumn(name = "user_id", referencedColumnName = "id_user")
+    private User user;
 }

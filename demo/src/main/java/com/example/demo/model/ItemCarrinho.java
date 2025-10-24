@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Table(name = "tb_ite,_carrinho")
+@Table(name = "tb_item_carrinho")
 public class ItemCarrinho implements Serializable {
 
     @Id

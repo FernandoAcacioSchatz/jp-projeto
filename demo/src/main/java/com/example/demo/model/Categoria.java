@@ -28,7 +28,7 @@ public class Categoria  implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ind_fornecedor")
+    @Column(name = "id_categoria")
     private Integer id;
 
     @NotBlank

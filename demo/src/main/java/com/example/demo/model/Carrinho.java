@@ -51,7 +51,7 @@ public class Carrinho implements Serializable{
     private Set<ItemCarrinho> itens = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false, unique = true)
-    private Usuario usuario;
+    @JoinColumn(name = "id_cliente", nullable = false, unique = true)
+    private Cliente cliente;
 
 }
