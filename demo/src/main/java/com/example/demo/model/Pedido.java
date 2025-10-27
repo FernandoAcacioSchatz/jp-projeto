@@ -45,8 +45,8 @@ public class Pedido  implements Serializable{
     private BigDecimal valorTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private Cliente usuario;
+    @JoinColumn(name = "id_cliente", nullable = false)
+    private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
     private Set<ItemPedido> itens = new HashSet<>();

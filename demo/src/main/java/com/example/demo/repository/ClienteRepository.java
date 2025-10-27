@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
-    Optional<Cliente> findByEmail(String email);
+    Optional<Cliente> findByUser_Email(String email);
 
     Optional<Cliente> findByCpf(String cpf);
 
-    List<Cliente> findByNomeContainingIgnoreCase(String nome);
+    List<Cliente> findByNomeClienteContainingIgnoreCase(String nome);
 
 }

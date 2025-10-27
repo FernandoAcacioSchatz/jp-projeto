@@ -1,18 +1,20 @@
 package com.example.demo.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.FornecedorRequestDTO;
+import com.example.demo.dto.FornecedorResponseDTO;
 import com.example.demo.exception.CnpjException;
 import com.example.demo.exception.EmailException;
 import com.example.demo.exception.RegraNegocioException;
-import com.example.demo.model.Cliente;
 import com.example.demo.model.Fornecedor;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
@@ -40,6 +42,15 @@ public class FornecedorService {
         this.clienteService = clienteService;
     }
 
+    public List<FornecedorResponseDTO> listarTodosFornecedores() {
+
+        List<Fornecedor> fornecedores = fRepository.findAll();
+
+        return fornecedores.stream()
+                .map(fornecedor -> new FornecedorResponseDTO(fornecedor)) // Usa o construtor do DTO
+                .collect(Collectors.toList());
+    }
+
     public Fornecedor findById(Integer idFornecedor) {
         Fornecedor fornecedores = fRepository.findById(idFornecedor)
                 .orElseThrow(
@@ -50,11 +61,11 @@ public class FornecedorService {
 
     public Fornecedor inserirFornecedor(FornecedorRequestDTO dto) {
 
-        if (fRepository.findByEmail(dto.getEmail()).isPresent()) {
+        if (fRepository.findByUser_Email(dto.email()).isPresent()) {
             throw new EmailException("Email já cadastrado no sistema.");
         }
 
-        if (fRepository.findByCnpj(dto.getCnpj()).isPresent()) {
+        if (fRepository.findByCnpj(dto.cnpj()).isPresent()) {
             throw new CnpjException("CNPJ já cadastrado");
         }
 
@@ -62,14 +73,14 @@ public class FornecedorService {
                 .orElseThrow(() -> new RuntimeException("Role ROLE_FORNECEDOR não encontrada no sistema."));
 
         User novoUser = new User();
-        novoUser.setEmail(dto.getEmail());
-        novoUser.setSenha(passwordEncoder.encode(dto.getSenha()));
+        novoUser.setEmail(dto.email());
+        novoUser.setSenha(passwordEncoder.encode(dto.senha()));
         novoUser.setRoles(Set.of(roleFornecedor));
 
         Fornecedor novoFornecedor = new Fornecedor();
-        novoFornecedor.setNome(dto.getNome());
-        novoFornecedor.setCnpj(dto.getCnpj());
-        novoFornecedor.setTelefone(dto.getTelefone());
+        novoFornecedor.setNome(dto.nome());
+        novoFornecedor.setCnpj(dto.cnpj());
+        novoFornecedor.setTelefone(dto.telefone());
 
         try {
             return fRepository.save(novoFornecedor);
@@ -87,19 +98,19 @@ public class FornecedorService {
             throw new RuntimeException("Usuário associado ao fornecedor não encontrado.");
         }
 
-        if (dto.getEmail() != null && !dto.getEmail().equals(userExiste.getEmail())) {
-            Optional<User> outroUserPorEmail = userRepository.findByEmail(dto.getEmail());
+        if (dto.email() != null && !dto.email().equals(userExiste.getEmail())) {
+            Optional<User> outroUserPorEmail = userRepository.findByEmail(dto.email());
             if (outroUserPorEmail.isPresent() && !outroUserPorEmail.get().getId().equals(userExiste.getId())) {
                 throw new EmailException("Email já cadastrado no sistema.");
             }
-            userExiste.setEmail(dto.getEmail());
+            userExiste.setEmail(dto.email());
         }
-        if (dto.getNome() != null) {
-            fornecedorExistente.setNome(dto.getNome());
+        if (dto.nome() != null) {
+            fornecedorExistente.setNome(dto.nome());
         }
 
-        if (dto.getTelefone() != null) {
-            fornecedorExistente.setTelefone(dto.getTelefone());
+        if (dto.telefone() != null) {
+            fornecedorExistente.setTelefone(dto.telefone());
         }
 
         return fRepository.save(fornecedorExistente);

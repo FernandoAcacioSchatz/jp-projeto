@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.demo.dto.ClienteResponseDTO;
 import com.example.demo.model.Cliente;
-import com.example.demo.repository.ClienteRepository;
+
 import com.example.demo.service.ClienteService;
 import com.example.demo.dto.ClienteRequestDTO;
 import jakarta.validation.Valid;
@@ -28,20 +28,23 @@ public class ClienteController {
     @Autowired
     private ClienteService cService;
 
-    private ClienteRepository cRepository;
+    @GetMapping
+    public ResponseEntity<List<ClienteResponseDTO>> findAll() {
 
-    public ResponseEntity<List<Cliente>> findAll() {
-        return ResponseEntity.ok().body(cRepository.findAll());
+        List<ClienteResponseDTO> clientesDTO = cService.listarTodosClientes();
+
+        return ResponseEntity.ok(clientesDTO);
+
     }
 
     @GetMapping(value = "/{idCliente}")
-    public ResponseEntity<ClienteResponseDTO> buscarClientePorId(@PathVariable Integer idCliente) {
+    public ResponseEntity<ClienteResponseDTO> buscarPorIdCliente(@PathVariable Integer idCliente) {
 
         Cliente cliente = cService.findById(idCliente);
 
-        ClienteResponseDTO responseDto = new ClienteResponseDTO(cliente);
+        ClienteResponseDTO cResponseDto = new ClienteResponseDTO(cliente);
 
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(cResponseDto);
     }
 
     @PostMapping
@@ -60,21 +63,17 @@ public class ClienteController {
         return ResponseEntity.created(uri).body(responseDto);
     }
 
-    @PutMapping(value = "/{id}")
+    @PutMapping(value = "/{idCliente}")
     public ResponseEntity<ClienteResponseDTO> atualizarCliente(@PathVariable Integer id,
             @Valid @RequestBody ClienteRequestDTO dto) {
 
-        // 1. O serviço localiza e atualiza o usuário
         Cliente clienteAtualizado = cService.alterarCliente(dto, id);
 
-        // 2. Converte para o DTO de resposta
-        ClienteResponseDTO responseDto = new ClienteResponseDTO(clienteAtualizado);
+        ClienteResponseDTO cResponseDto = new ClienteResponseDTO(clienteAtualizado);
 
-        // 3. Retorna 200 OK com o usuário atualizado
-        return ResponseEntity.ok(responseDto);
+        return ResponseEntity.ok(cResponseDto);
     }
 
-    // --- DELETE (O novo método Delete) ---
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer id) {
 

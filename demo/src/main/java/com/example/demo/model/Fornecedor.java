@@ -2,9 +2,8 @@ package com.example.demo.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,7 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
+
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -31,7 +30,7 @@ import lombok.Setter;
 @Table(name = "tb_fornecedores")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "idFornecedor")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Fornecedor implements Serializable {
@@ -39,7 +38,7 @@ public class Fornecedor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_fornecedor")
-    private Integer id;
+    private Integer idFornecedor;
 
     @NotBlank
     @Column(name = "nome", nullable = false)
@@ -56,8 +55,8 @@ public class Fornecedor implements Serializable {
     @Column(name = "estado", nullable = false)
     private EstadosBrasileiros estado;
 
-    @ManyToMany(mappedBy = "fornecedores")
-    private Set<Produto> produtos = new HashSet<>();
+    @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Produto> produtos;
 
     @OneToMany(mappedBy = "fornecedores", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<>();

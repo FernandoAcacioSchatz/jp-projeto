@@ -1,15 +1,18 @@
 package com.example.demo.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.demo.dto.ClienteRequestDTO;
+import com.example.demo.dto.ClienteResponseDTO;
 import com.example.demo.exception.CpfException;
 import com.example.demo.exception.EmailException;
 import com.example.demo.exception.RegraNegocioException;
@@ -28,7 +31,6 @@ public class ClienteService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public ClienteService(ClienteRepository cRepository, UserRepository userRepository, RoleRepository roleRepository,
             PasswordEncoder passwordEncoder) {
         this.cRepository = cRepository;
@@ -37,6 +39,7 @@ public class ClienteService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Autowired
     public Cliente findById(Integer idCliente) {
         Cliente clientes = cRepository
                 .findById(idCliente)
@@ -46,13 +49,22 @@ public class ClienteService {
         return clientes;
     }
 
+    public List<ClienteResponseDTO> listarTodosClientes() {
+
+        List<Cliente> clientes = cRepository.findAll();
+
+        return clientes.stream()
+                .map(cliente -> new ClienteResponseDTO(cliente)) // Usa o construtor do DTO
+                .collect(Collectors.toList());
+    }
+
     public Cliente inserirCliente(ClienteRequestDTO dto) {
 
-        if (cRepository.findByEmail(dto.getEmail()).isPresent()) {
+        if (cRepository.findByUser_Email(dto.email()).isPresent()) {
             throw new EmailException("Email já cadastrado no sistema.");
         }
 
-        if (cRepository.findByCpf(dto.getCpf()).isPresent()) {
+        if (cRepository.findByCpf(dto.cpf()).isPresent()) {
             throw new CpfException("CPF já cadastrado");
         }
 
@@ -60,14 +72,14 @@ public class ClienteService {
                 .orElseThrow(() -> new RegraNegocioException("Role ROLE_CLIENTE não encontrada no sistema."));
 
         User novoUser = new User();
-        novoUser.setEmail(dto.getEmail());
-        novoUser.setSenha(passwordEncoder.encode(dto.getSenha()));
+        novoUser.setEmail(dto.email());
+        novoUser.setSenha(passwordEncoder.encode(dto.senha()));
         novoUser.setRoles(Set.of(roleCliente));
 
         Cliente novoCliente = new Cliente();
-        novoCliente.setNomeCliente(dto.getNomeCliente());
-        novoCliente.setCpf(dto.getCpf());
-        novoCliente.setTelefone(dto.getTelefone());
+        novoCliente.setNomeCliente(dto.nomeCliente());
+        novoCliente.setCpf(dto.cpf());
+        novoCliente.setTelefone(dto.telefone());
 
         try {
             return cRepository.save(novoCliente);
@@ -85,20 +97,20 @@ public class ClienteService {
         if (userExiste == null) {
             throw new RegraNegocioException("Usuário associado ao cliente não encontrado.");
         }
-        if (dto.getEmail() != null && !dto.getEmail().equals(userExiste.getEmail())) {
-            Optional<User> outroUserPorEmail = userRepository.findByEmail(dto.getEmail());
+        if (dto.email() != null && !dto.email().equals(userExiste.getEmail())) {
+            Optional<User> outroUserPorEmail = userRepository.findByEmail(dto.email());
             if (outroUserPorEmail.isPresent() && !outroUserPorEmail.get().getId().equals(userExiste.getId())) {
                 throw new EmailException("Email já cadastrado no sistema.");
             }
-            userExiste.setEmail(dto.getEmail());
+            userExiste.setEmail(dto.email());
         }
 
-        if (dto.getNomeCliente() != null) {
-            clienteExistente.setNomeCliente(dto.getNomeCliente());
+        if (dto.nomeCliente() != null) {
+            clienteExistente.setNomeCliente(dto.nomeCliente());
         }
 
-        if (dto.getTelefone() != null) {
-            clienteExistente.setTelefone(dto.getTelefone());
+        if (dto.telefone() != null) {
+            clienteExistente.setTelefone(dto.telefone());
         }
 
         return cRepository.save(clienteExistente);

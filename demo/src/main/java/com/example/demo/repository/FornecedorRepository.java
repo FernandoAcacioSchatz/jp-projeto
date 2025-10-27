@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface FornecedorRepository extends JpaRepository<Fornecedor, Integer> {
 
-    Optional<Fornecedor> findByEmail(String email);
+    Optional<Fornecedor> findByUser_Email(String email);
 
     Optional<Fornecedor> findByCnpj(String cnpj);
 

@@ -34,7 +34,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Produto  implements Serializable{
+public class Produto implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,9 +63,9 @@ public class Produto  implements Serializable{
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
 
-    @ManyToMany
-    @JoinTable(name = "produto_fornecedor", joinColumns = @JoinColumn(name = "id_produto"), inverseJoinColumns = @JoinColumn(name = "id_fornecedor"))
-    private Set<Fornecedor> fornecedores = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_fornecedor", nullable = false)
+    private Fornecedor fornecedor;
 
     @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
     private Set<ItemCarrinho> itensCarrinho = new HashSet<>();
