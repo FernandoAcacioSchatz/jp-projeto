@@ -4,7 +4,11 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.demo.dto.AlterarSenhaDTO;
 import com.example.demo.dto.FornecedorRequestDTO;
 import com.example.demo.dto.FornecedorResponseDTO;
 import com.example.demo.model.Fornecedor;
@@ -35,6 +40,19 @@ public class FornecedorController {
 
         return ResponseEntity.ok(fornecedoresDTO);
 
+    }
+
+    /**
+     * Endpoint para listagem paginada de fornecedores
+     * Exemplo: GET /fornecedor/paginado?page=0&size=10&sort=nome,asc
+     */
+    @GetMapping("/paginado")
+    public ResponseEntity<Page<FornecedorResponseDTO>> findAllPaginado(
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+
+        Page<FornecedorResponseDTO> fornecedoresDTO = fService.listarTodosFornecedoresPaginado(pageable);
+
+        return ResponseEntity.ok(fornecedoresDTO);
     }
 
     @GetMapping(value = "/{idFornecedor}")
@@ -64,21 +82,42 @@ public class FornecedorController {
     }
 
     @PutMapping(value = "/{idFornecedor}")
-    public ResponseEntity<FornecedorResponseDTO> atualizarFornecedor(@PathVariable Integer id,
+    public ResponseEntity<FornecedorResponseDTO> atualizarFornecedor(@PathVariable Integer idFornecedor,
             @Valid @RequestBody FornecedorRequestDTO dto) {
 
-        Fornecedor fornecedorAtualizado = fService.alteraFornecedor(dto, id);
+        Fornecedor fornecedorAtualizado = fService.alteraFornecedor(dto, idFornecedor);
 
         FornecedorResponseDTO fResponseDto = new FornecedorResponseDTO(fornecedorAtualizado);
 
         return ResponseEntity.ok(fResponseDto);
     }
 
-    public ResponseEntity<Void> deletarFornecedor(@PathVariable Integer id) {
+    @DeleteMapping(value = "/{idFornecedor}")
+    public ResponseEntity<Void> deletarFornecedor(@PathVariable Integer idFornecedor) {
 
-        fService.deletarFornecedor(id);
+        fService.deletarFornecedor(idFornecedor);
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Endpoint para alteração de senha com validação da senha atual
+     * POST /fornecedor/{idFornecedor}/alterar-senha
+     */
+    @PostMapping(value = "/{idFornecedor}/alterar-senha")
+    public ResponseEntity<Void> alterarSenha(
+            @PathVariable Integer idFornecedor,
+            @Valid @RequestBody AlterarSenhaDTO dto) {
+
+        // Valida se as senhas conferem
+        if (!dto.senhasConferem()) {
+            throw new com.example.demo.exception.RegraNegocioException(
+                "A nova senha e a confirmação não conferem.");
+        }
+
+        fService.alterarSenhaComValidacao(dto.senhaAtual(), dto.novaSenha(), idFornecedor);
+
+        return ResponseEntity.ok().build();
     }
 
 }

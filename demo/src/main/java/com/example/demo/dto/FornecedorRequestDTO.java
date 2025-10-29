@@ -1,6 +1,8 @@
 package com.example.demo.dto;
 
-import jakarta.validation.constraints.Email; // É uma boa prática adicionar validação de email
+import com.example.demo.validation.ValidCnpj;
+
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -11,15 +13,16 @@ public record FornecedorRequestDTO(
     String nome,
 
     @NotBlank(message = "O email é Obrigatório")
-    @Email(message = "Formato de email inválido") // Recomendado
+    @Email(message = "Formato de email inválido")
     String email,
 
     @NotBlank(message = "A senha é Obrigatória")
-    @Size(min = 8) // Recomendo definir um tamanho mínimo para a senha
+    @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
     String senha,
 
     @NotBlank(message = "O CNPJ é Obrigatório")
-    @Size(min = 14, max = 18) // O seu size original de min 12 estava um pouco curto para CNPJ (14.123.123/0001-12)
+    @Size(min = 14, max = 18, message = "O CNPJ deve ter 14 dígitos")
+    @ValidCnpj(message = "CNPJ inválido. Verifique os dígitos informados.")
     String cnpj,
 
     @NotBlank(message = "O telefone é Obrigatório")

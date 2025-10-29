@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +17,17 @@ import com.example.demo.dto.FornecedorResponseDTO;
 import com.example.demo.exception.CnpjException;
 import com.example.demo.exception.EmailException;
 import com.example.demo.exception.RegraNegocioException;
+import com.example.demo.exception.RoleNotFoundException;
 import com.example.demo.model.Fornecedor;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.repository.FornecedorRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.util.CnpjValidator;
 
 @Service
 public class FornecedorService {
-
-    private final ClienteService clienteService;
 
     private final FornecedorRepository fRepository;
     private final UserRepository userRepository;
@@ -34,12 +36,11 @@ public class FornecedorService {
 
     public FornecedorService(FornecedorRepository fRepository, UserRepository userRepository,
             RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder, ClienteService clienteService) {
+            PasswordEncoder passwordEncoder) {
         this.fRepository = fRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.clienteService = clienteService;
     }
 
     public List<FornecedorResponseDTO> listarTodosFornecedores() {
@@ -47,8 +48,18 @@ public class FornecedorService {
         List<Fornecedor> fornecedores = fRepository.findAll();
 
         return fornecedores.stream()
-                .map(fornecedor -> new FornecedorResponseDTO(fornecedor)) // Usa o construtor do DTO
+                .map(fornecedor -> new FornecedorResponseDTO(fornecedor))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista todos os fornecedores com paginação
+     */
+    public Page<FornecedorResponseDTO> listarTodosFornecedoresPaginado(Pageable pageable) {
+
+        Page<Fornecedor> fornecedores = fRepository.findAll(pageable);
+
+        return fornecedores.map(fornecedor -> new FornecedorResponseDTO(fornecedor));
     }
 
     public Fornecedor findById(Integer idFornecedor) {
@@ -65,12 +76,20 @@ public class FornecedorService {
             throw new EmailException("Email já cadastrado no sistema.");
         }
 
-        if (fRepository.findByCnpj(dto.cnpj()).isPresent()) {
-            throw new CnpjException("CNPJ já cadastrado");
+        // Remove formatação do CNPJ para validação e armazenamento
+        String cnpjLimpo = CnpjValidator.removeFormat(dto.cnpj());
+
+        // Valida o CNPJ (dígitos verificadores)
+        if (!CnpjValidator.isValid(cnpjLimpo)) {
+            throw new CnpjException("CNPJ inválido. Verifique os dígitos informados.");
+        }
+
+        if (fRepository.findByCnpj(cnpjLimpo).isPresent()) {
+            throw new CnpjException("CNPJ já cadastrado no sistema.");
         }
 
         Role roleFornecedor = roleRepository.findByNomePapel("ROLE_FORNECEDOR")
-                .orElseThrow(() -> new RuntimeException("Role ROLE_FORNECEDOR não encontrada no sistema."));
+                .orElseThrow(() -> RoleNotFoundException.forRole("ROLE_FORNECEDOR"));
 
         User novoUser = new User();
         novoUser.setEmail(dto.email());
@@ -79,13 +98,14 @@ public class FornecedorService {
 
         Fornecedor novoFornecedor = new Fornecedor();
         novoFornecedor.setNome(dto.nome());
-        novoFornecedor.setCnpj(dto.cnpj());
+        novoFornecedor.setCnpj(cnpjLimpo); // Armazena CNPJ sem formatação
         novoFornecedor.setTelefone(dto.telefone());
+        novoFornecedor.setUser(novoUser);
 
         try {
             return fRepository.save(novoFornecedor);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Erro de integridade ao salvar o fornecedor: " + e.getMessage());
+            throw new RegraNegocioException("Erro de integridade ao salvar o fornecedor: " + e.getMessage(), e);
         }
     }
 
@@ -95,7 +115,7 @@ public class FornecedorService {
 
         User userExiste = fornecedorExistente.getUser();
         if (userExiste == null) {
-            throw new RuntimeException("Usuário associado ao fornecedor não encontrado.");
+            throw new RegraNegocioException("Usuário associado ao fornecedor não encontrado.");
         }
 
         if (dto.email() != null && !dto.email().equals(userExiste.getEmail())) {
@@ -131,11 +151,39 @@ public class FornecedorService {
 
     }
 
+    /**
+     * Altera a senha do fornecedor validando a senha atual
+     */
+    public void alterarSenhaComValidacao(String senhaAtual, String novaSenha, Integer idFornecedor) {
+
+        Fornecedor fornecedor = this.findById(idFornecedor);
+
+        User user = fornecedor.getUser();
+        if (user == null) {
+            throw new RegraNegocioException("Usuário associado ao fornecedor não encontrado.");
+        }
+
+        // Valida a senha atual
+        if (!passwordEncoder.matches(senhaAtual, user.getSenha())) {
+            throw new RegraNegocioException("Senha atual incorreta.");
+        }
+
+        // Atualiza para a nova senha
+        user.setSenha(passwordEncoder.encode(novaSenha));
+
+        userRepository.save(user);
+    }
+
     public void deletarFornecedor(Integer idFornecedor) {
 
         Fornecedor fornecedorParaDeletar = this.findById(idFornecedor);
 
-        fRepository.delete(fornecedorParaDeletar);
+        // Soft delete - apenas marca como deletado
+        fornecedorParaDeletar.markAsDeleted();
+        fRepository.save(fornecedorParaDeletar);
+        
+        // Para hard delete (exclusão física), use:
+        // fRepository.delete(fornecedorParaDeletar);
     }
 
 }

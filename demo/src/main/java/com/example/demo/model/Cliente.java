@@ -28,10 +28,10 @@ import lombok.Setter;
 @Table(name = "tb_clientes")
 @Getter
 @Setter
-@EqualsAndHashCode(of = "idCliente")
+@EqualsAndHashCode(of = "idCliente", callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Cliente implements Serializable {
+public class Cliente extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,20 +8,23 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.io.Serializable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "tb_users") // "user" é palavra reservada em alguns bancos
+@Table(name = "tb_users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class User implements Serializable {
-    // NOTA: Depois vamos fazer ela implementar 'UserDetails' do Spring Security,
-    // mas por enquanto, vamos mantê-la simples.
+public class User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,11 +42,48 @@ public class User implements Serializable {
     @Column(name = "senha", nullable = false)
     private String senha;
 
-    @ManyToMany(fetch = FetchType.EAGER) // EAGER é importante para o Spring Security
-    @JoinTable(name = "tb_user_roles", // Nome da tabela de associação
-            joinColumns = @JoinColumn(name = "user_id"), // Chave estrangeira para User
-            inverseJoinColumns = @JoinColumn(name = "role_id") // Chave estrangeira para Role
-    )
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "tb_user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    // Implementação dos métodos de UserDetails
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getNomePapel()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return email; // Usamos email como username
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Conta nunca expira
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Conta nunca é bloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Credenciais nunca expiram
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Conta sempre habilitada
+    }
 }

@@ -7,8 +7,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.demo.dto.ClienteRequestDTO;
@@ -16,12 +17,14 @@ import com.example.demo.dto.ClienteResponseDTO;
 import com.example.demo.exception.CpfException;
 import com.example.demo.exception.EmailException;
 import com.example.demo.exception.RegraNegocioException;
+import com.example.demo.exception.RoleNotFoundException;
 import com.example.demo.model.Cliente;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.repository.ClienteRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.util.CpfValidator;
 
 @Service
 public class ClienteService {
@@ -39,7 +42,7 @@ public class ClienteService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Autowired
+    
     public Cliente findById(Integer idCliente) {
         Cliente clientes = cRepository
                 .findById(idCliente)
@@ -54,8 +57,18 @@ public class ClienteService {
         List<Cliente> clientes = cRepository.findAll();
 
         return clientes.stream()
-                .map(cliente -> new ClienteResponseDTO(cliente)) // Usa o construtor do DTO
+                .map(cliente -> new ClienteResponseDTO(cliente))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista todos os clientes com paginação
+     */
+    public Page<ClienteResponseDTO> listarTodosClientesPaginado(Pageable pageable) {
+
+        Page<Cliente> clientes = cRepository.findAll(pageable);
+
+        return clientes.map(cliente -> new ClienteResponseDTO(cliente));
     }
 
     public Cliente inserirCliente(ClienteRequestDTO dto) {
@@ -64,12 +77,20 @@ public class ClienteService {
             throw new EmailException("Email já cadastrado no sistema.");
         }
 
-        if (cRepository.findByCpf(dto.cpf()).isPresent()) {
-            throw new CpfException("CPF já cadastrado");
+        // Remove formatação do CPF para validação e armazenamento
+        String cpfLimpo = CpfValidator.removeFormat(dto.cpf());
+
+        // Valida o CPF (dígitos verificadores)
+        if (!CpfValidator.isValid(cpfLimpo)) {
+            throw new CpfException("CPF inválido. Verifique os dígitos informados.");
+        }
+
+        if (cRepository.findByCpf(cpfLimpo).isPresent()) {
+            throw new CpfException("CPF já cadastrado no sistema.");
         }
 
         Role roleCliente = roleRepository.findByNomePapel("ROLE_CLIENTE")
-                .orElseThrow(() -> new RegraNegocioException("Role ROLE_CLIENTE não encontrada no sistema."));
+                .orElseThrow(() -> RoleNotFoundException.forRole("ROLE_CLIENTE"));
 
         User novoUser = new User();
         novoUser.setEmail(dto.email());
@@ -78,8 +99,9 @@ public class ClienteService {
 
         Cliente novoCliente = new Cliente();
         novoCliente.setNomeCliente(dto.nomeCliente());
-        novoCliente.setCpf(dto.cpf());
+        novoCliente.setCpf(cpfLimpo); // Armazena CPF sem formatação
         novoCliente.setTelefone(dto.telefone());
+        novoCliente.setUser(novoUser);
 
         try {
             return cRepository.save(novoCliente);
@@ -132,11 +154,39 @@ public class ClienteService {
 
     }
 
+    /**
+     * Altera a senha do cliente validando a senha atual
+     */
+    public void alterarSenhaComValidacao(String senhaAtual, String novaSenha, Integer idCliente) {
+
+        Cliente cliente = this.findById(idCliente);
+
+        User user = cliente.getUser();
+        if (user == null) {
+            throw new RegraNegocioException("Usuário associado ao cliente não encontrado.");
+        }
+
+        // Valida a senha atual
+        if (!passwordEncoder.matches(senhaAtual, user.getSenha())) {
+            throw new RegraNegocioException("Senha atual incorreta.");
+        }
+
+        // Atualiza para a nova senha
+        user.setSenha(passwordEncoder.encode(novaSenha));
+
+        userRepository.save(user);
+    }
+
     public void deletarCliente(Integer idCliente) {
 
         Cliente clienteParaDeletar = this.findById(idCliente);
 
-        cRepository.delete(clienteParaDeletar);
+        // Soft delete - apenas marca como deletado
+        clienteParaDeletar.markAsDeleted();
+        cRepository.save(clienteParaDeletar);
+        
+        // Para hard delete (exclusão física), use:
+        // cRepository.delete(clienteParaDeletar);
     }
 
 }
