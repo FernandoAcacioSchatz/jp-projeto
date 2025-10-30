@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.demo.dto.CriarPedidoDTO;
 import com.example.demo.dto.PedidoResponseDTO;
 import com.example.demo.dto.PedidoResumoDTO;
 import com.example.demo.model.Cliente;
@@ -25,6 +27,8 @@ import com.example.demo.model.StatusPedido;
 import com.example.demo.repository.ClienteRepository;
 import com.example.demo.repository.FornecedorRepository;
 import com.example.demo.service.PedidoService;
+
+import jakarta.validation.Valid;
 
 import java.net.URI;
 
@@ -49,13 +53,16 @@ public class PedidoController {
     /**
      * Cria um pedido a partir do carrinho do cliente logado
      * POST /pedido
+     * Body: { "tipoPagamento": "PIX", "idEnderecoEntrega": 1 (opcional) }
      */
     @PostMapping
-    public ResponseEntity<PedidoResponseDTO> criarPedido(Authentication authentication) {
+    public ResponseEntity<PedidoResponseDTO> criarPedido(
+            @Valid @RequestBody CriarPedidoDTO dto,
+            Authentication authentication) {
 
         Integer idCliente = obterIdClienteLogado(authentication);
 
-        PedidoResponseDTO pedido = pedidoService.criarPedidoDoCarrinho(idCliente);
+        PedidoResponseDTO pedido = pedidoService.criarPedidoDoCarrinho(idCliente, dto);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")

@@ -8,18 +8,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.CriarPedidoDTO;
 import com.example.demo.dto.PedidoResponseDTO;
 import com.example.demo.dto.PedidoResumoDTO;
 import com.example.demo.exception.RegraNegocioException;
 import com.example.demo.model.Carrinho;
+import com.example.demo.model.Cartao;
 import com.example.demo.model.Cliente;
+import com.example.demo.model.Endereco;
 import com.example.demo.model.ItemCarrinho;
 import com.example.demo.model.ItemPedido;
 import com.example.demo.model.Pedido;
 import com.example.demo.model.Produto;
 import com.example.demo.model.StatusPedido;
+import com.example.demo.model.TipoPagamento;
 import com.example.demo.repository.CarrinhoRepository;
+import com.example.demo.repository.CartaoRepository;
 import com.example.demo.repository.ClienteRepository;
+import com.example.demo.repository.EnderecoRepository;
 import com.example.demo.repository.PedidoRepository;
 import com.example.demo.repository.ProdutoRepository;
 
@@ -30,22 +36,34 @@ public class PedidoService {
     private final CarrinhoRepository carrinhoRepository;
     private final ClienteRepository clienteRepository;
     private final ProdutoRepository produtoRepository;
+    private final EnderecoRepository enderecoRepository;
+    private final QRCodeService qrCodeService;
+    private final PixService pixService;
+    private final CartaoRepository cartaoRepository;
 
     public PedidoService(PedidoRepository pedidoRepository,
             CarrinhoRepository carrinhoRepository,
             ClienteRepository clienteRepository,
-            ProdutoRepository produtoRepository) {
+            ProdutoRepository produtoRepository,
+            EnderecoRepository enderecoRepository,
+            QRCodeService qrCodeService,
+            PixService pixService,
+            CartaoRepository cartaoRepository) {
         this.pedidoRepository = pedidoRepository;
         this.carrinhoRepository = carrinhoRepository;
         this.clienteRepository = clienteRepository;
         this.produtoRepository = produtoRepository;
+        this.enderecoRepository = enderecoRepository;
+        this.qrCodeService = qrCodeService;
+        this.pixService = pixService;
+        this.cartaoRepository = cartaoRepository;
     }
 
     /**
      * Cria um pedido a partir do carrinho do cliente
      */
     @Transactional
-    public PedidoResponseDTO criarPedidoDoCarrinho(Integer idCliente) {
+    public PedidoResponseDTO criarPedidoDoCarrinho(Integer idCliente, CriarPedidoDTO dto) {
 
         Cliente cliente = clienteRepository.findById(idCliente)
                 .orElseThrow(() -> new RegraNegocioException("Cliente não encontrado."));
@@ -57,10 +75,60 @@ public class PedidoService {
             throw new RegraNegocioException("Não é possível criar pedido com carrinho vazio.");
         }
 
+        // Busca o endereço de entrega
+        Endereco enderecoEntrega;
+        if (dto.idEnderecoEntrega() != null) {
+            enderecoEntrega = enderecoRepository.findById(dto.idEnderecoEntrega())
+                    .orElseThrow(() -> new RegraNegocioException("Endereço não encontrado."));
+            
+            // Valida se o endereço pertence ao cliente
+            if (!enderecoEntrega.getCliente().getIdCliente().equals(idCliente)) {
+                throw new RegraNegocioException("O endereço selecionado não pertence a você.");
+            }
+        } else {
+            // Usa o endereço principal
+            enderecoEntrega = enderecoRepository.findByCliente_IdClienteAndIsPrincipalTrue(idCliente)
+                    .orElseThrow(() -> new RegraNegocioException(
+                            "Você não possui um endereço principal cadastrado. Cadastre um endereço ou selecione um existente."));
+        }
+
+        // 💳 Valida forma de pagamento
+        Cartao cartaoSelecionado = null;
+        if (dto.tipoPagamento() == TipoPagamento.CARTAO_CREDITO || 
+            dto.tipoPagamento() == TipoPagamento.CARTAO_DEBITO) {
+            
+            // Para pagamentos com cartão, valida se o cliente possui cartão cadastrado
+            if (dto.idCartao() != null) {
+                // Usa o cartão informado
+                cartaoSelecionado = cartaoRepository.findById(dto.idCartao())
+                        .orElseThrow(() -> new RegraNegocioException("Cartão não encontrado."));
+                
+                // Valida se o cartão pertence ao cliente
+                if (!cartaoSelecionado.getCliente().getIdCliente().equals(idCliente)) {
+                    throw new RegraNegocioException("Este cartão não pertence a você.");
+                }
+            } else {
+                // Usa o cartão principal
+                cartaoSelecionado = cartaoRepository.findByCliente_IdClienteAndIsPrincipalTrue(idCliente)
+                        .orElseThrow(() -> new RegraNegocioException(
+                                "Você não possui um cartão principal cadastrado. " +
+                                "Cadastre um cartão ou informe o ID de um cartão existente."));
+            }
+            
+            // Valida se o cartão está vencido
+            if (cartaoSelecionado.isVencido()) {
+                throw new RegraNegocioException(
+                        "O cartão selecionado está vencido. Por favor, selecione outro cartão.");
+            }
+        }
+
         // Valida estoque e cria o pedido
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setStatus(StatusPedido.PENDENTE);
+        pedido.setTipoPagamento(dto.tipoPagamento());
+        pedido.setEnderecoEntrega(enderecoEntrega);
+        pedido.setCartao(cartaoSelecionado); // Associa cartão se for pagamento com cartão
 
         for (ItemCarrinho itemCarrinho : carrinho.getItens()) {
             Produto produto = itemCarrinho.getProduto();
@@ -91,6 +159,16 @@ public class PedidoService {
 
         // Salva o pedido
         Pedido pedidoSalvo = pedidoRepository.save(pedido);
+
+        // 🚀 Gera QR Code de rastreamento para cada item do pedido
+        for (ItemPedido itemPedido : pedidoSalvo.getItens()) {
+            qrCodeService.gerarQRCodeParaItem(itemPedido);
+        }
+
+        // 💰 Gera pagamento PIX se for esse o tipo de pagamento
+        if (dto.tipoPagamento() == TipoPagamento.PIX) {
+            pixService.gerarPagamentoPix(pedidoSalvo);
+        }
 
         // Limpa o carrinho após criar o pedido
         carrinho.getItens().clear();

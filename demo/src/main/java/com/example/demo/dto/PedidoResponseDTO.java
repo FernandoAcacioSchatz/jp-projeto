@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.example.demo.model.Pedido;
 import com.example.demo.model.StatusPedido;
+import com.example.demo.model.TipoPagamento;
 
 /**
  * DTO de resposta para pedido completo
@@ -17,6 +18,8 @@ public record PedidoResponseDTO(
         Integer idCliente,
         String nomeCliente,
         StatusPedido status,
+        TipoPagamento tipoPagamento,
+        EnderecoResponseDTO enderecoEntrega,
         List<ItemPedidoResponseDTO> itens,
         BigDecimal valorTotal
 ) {
@@ -27,6 +30,8 @@ public record PedidoResponseDTO(
                 pedido.getCliente().getIdCliente(),
                 pedido.getCliente().getNomeCliente(),
                 pedido.getStatus(),
+                pedido.getTipoPagamento(),
+                pedido.getEnderecoEntrega() != null ? new EnderecoResponseDTO(pedido.getEnderecoEntrega()) : null,
                 pedido.getItens().stream()
                         .map(ItemPedidoResponseDTO::new)
                         .collect(Collectors.toList()),

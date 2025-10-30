@@ -1,35 +1,53 @@
 package com.example.demo.config;
 
 // 1. IMPORTS NECESSÁRIOS
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-// IMPORTS NOVOS (PARA OS USUÁRIOS)
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable()) 
+        http
+                // Habilita CORS com a configuração customizada
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                // Desabilita CSRF (correto para REST APIs stateless)
+                .csrf(csrf -> csrf.disable())
+                // Gerenciamento de sessão - STATELESS (JWT não precisa de sessão)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         // Permite acesso à página inicial da API
                         .requestMatchers("/").permitAll()
+                        
+                        // Endpoints de autenticação públicos
+                        .requestMatchers("/auth/**").permitAll()
                         
                         // Permite criar cliente e fornecedor
                         .requestMatchers(HttpMethod.POST, "/cliente").permitAll()
@@ -39,45 +57,46 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/produto").permitAll()
                         .requestMatchers(HttpMethod.GET, "/produto/**").permitAll()
                         
-                        // Permite acesso à página de login
-                        .requestMatchers("/login").permitAll() 
-                        
                         // Exige autenticação para qualquer outra coisa
                         .anyRequest().authenticated()
                 )
-                // Autenticação via HTTP Basic (REST API)
-                .httpBasic(withDefaults())
-                // Também permite login por formulário
-                .formLogin(withDefaults());
+                // Adiciona o filtro JWT antes do UsernamePasswordAuthenticationFilter
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Entry point customizado para erros de autenticação
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                // Headers de segurança
+                .headers(headers -> headers
+                    // Previne clickjacking
+                    .frameOptions(frame -> frame.deny())
+                    // HSTS - Força HTTPS por 1 ano
+                    // ⚠️ DESCOMENTADO PARA PRODUÇÃO, COMENTADO PARA LOCALHOST
+                    // Em localhost use HTTP, em produção com SSL use HTTPS
+                    // .httpStrictTransportSecurity(hsts -> hsts
+                    //     .includeSubDomains(true)
+                    //     .maxAgeInSeconds(31536000))
+                    // Previne MIME sniffing
+                    .contentTypeOptions(contentType -> contentType.disable())
+                );
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService);
+        return authProvider;
     }
 
-
-    // 3. ADICIONE ESTE MÉTODO INTEIRO
-    //    Este método cria os usuários em memória (já que o .properties foi desabilitado)
     @Bean
-    public UserDetailsService userDetailsService() {
-        
-        // Pega o encoder (BCrypt) que definimos acima
-        PasswordEncoder encoder = passwordEncoder();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 
-        // Cria o usuário "root" com a senha "aluno"
-        // A senha DEVE ser codificada aqui
-        UserDetails admin = User.builder()
-                .username("root")
-                .password(encoder.encode("aluno")) 
-                .roles("ADMIN", "USER") // Define as "funções" do usuário
-                .build();
-
-        // Você pode adicionar mais usuários se quiser
-        // UserDetails user = User.builder()...
-
-        return new InMemoryUserDetailsManager(admin); // Retorna o gerenciador com o usuário admin
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

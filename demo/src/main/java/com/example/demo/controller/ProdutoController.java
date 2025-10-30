@@ -81,6 +81,33 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO);
     }
 
+    /**
+     * Endpoint para buscar produtos por categoria
+     * Exemplo: GET /produto/categoria/1
+     */
+    @GetMapping("/categoria/{idCategoria}")
+    public ResponseEntity<List<ProdutoResponseDTO>> buscarProdutosPorCategoria(
+            @PathVariable Integer idCategoria) {
+        
+        List<ProdutoResponseDTO> produtosDTO = pService.buscarProdutosPorCategoria(idCategoria);
+        
+        return ResponseEntity.ok(produtosDTO);
+    }
+
+    /**
+     * Endpoint para buscar produtos por categoria com paginação
+     * Exemplo: GET /produto/categoria/1/paginado?page=0&size=10
+     */
+    @GetMapping("/categoria/{idCategoria}/paginado")
+    public ResponseEntity<Page<ProdutoResponseDTO>> buscarProdutosPorCategoriaPaginado(
+            @PathVariable Integer idCategoria,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        
+        Page<ProdutoResponseDTO> produtosDTO = pService.buscarProdutosPorCategoriaPaginado(idCategoria, pageable);
+        
+        return ResponseEntity.ok(produtosDTO);
+    }
+
     @GetMapping(value = "/{idProduto}")
     public ResponseEntity<ProdutoResponseDTO> buscarPorIdProduto(@PathVariable Integer idProduto) {
 

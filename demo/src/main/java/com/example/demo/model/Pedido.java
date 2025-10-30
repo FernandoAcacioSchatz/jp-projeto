@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -55,12 +56,27 @@ public class Pedido extends Auditable implements Serializable {
     @Column(nullable = false, length = 20)
     private StatusPedido status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_pagamento", nullable = false, length = 20)
+    private TipoPagamento tipoPagamento;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_endereco_entrega")
+    private Endereco enderecoEntrega;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Cliente cliente;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cartao")
+    private Cartao cartao;
+
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ItemPedido> itens = new ArrayList<>();
+
+    @OneToOne(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private PagamentoPix pagamentoPix;
 
     /**
      * Define a data do pedido automaticamente antes de persistir
@@ -104,5 +120,55 @@ public class Pedido extends Auditable implements Serializable {
      */
     public boolean estaFinalizado() {
         return this.status == StatusPedido.ENTREGUE || this.status == StatusPedido.CANCELADO;
+    }
+
+    /**
+     * Marca o pedido como PAGO
+     */
+    public void marcarComoPago() {
+        if (this.status != StatusPedido.PENDENTE) {
+            throw new IllegalStateException("Apenas pedidos PENDENTES podem ser marcados como PAGO.");
+        }
+        this.status = StatusPedido.PAGO;
+    }
+
+    /**
+     * Marca o pedido como EM_PREPARACAO
+     */
+    public void marcarComoEmPreparacao() {
+        if (this.status != StatusPedido.PAGO) {
+            throw new IllegalStateException("Apenas pedidos PAGOS podem ser marcados como EM_PREPARACAO.");
+        }
+        this.status = StatusPedido.EM_PREPARACAO;
+    }
+
+    /**
+     * Marca o pedido como ENVIADO
+     */
+    public void marcarComoEnviado() {
+        if (this.status != StatusPedido.EM_PREPARACAO) {
+            throw new IllegalStateException("Apenas pedidos EM_PREPARACAO podem ser marcados como ENVIADO.");
+        }
+        this.status = StatusPedido.ENVIADO;
+    }
+
+    /**
+     * Marca o pedido como ENTREGUE
+     */
+    public void marcarComoEntregue() {
+        if (this.status != StatusPedido.ENVIADO) {
+            throw new IllegalStateException("Apenas pedidos ENVIADOS podem ser marcados como ENTREGUE.");
+        }
+        this.status = StatusPedido.ENTREGUE;
+    }
+
+    /**
+     * Cancela o pedido
+     */
+    public void cancelar() {
+        if (!podeCancelar()) {
+            throw new IllegalStateException("Este pedido não pode ser cancelado no status atual: " + this.status);
+        }
+        this.status = StatusPedido.CANCELADO;
     }
 }

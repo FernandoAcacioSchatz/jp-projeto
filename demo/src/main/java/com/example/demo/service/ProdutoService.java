@@ -75,6 +75,38 @@ public class ProdutoService {
                 return produtos.map(produto -> new ProdutoResponseDTO(produto));
         }
 
+        /**
+         * Busca produtos por categoria
+         */
+        public List<ProdutoResponseDTO> buscarProdutosPorCategoria(Integer idCategoria) {
+
+                // Valida se a categoria existe
+                catRepository.findById(idCategoria)
+                        .orElseThrow(() -> new NoSuchElementException(
+                                "Categoria não encontrada com ID: " + idCategoria));
+
+                List<Produto> produtos = pRepository.findByCategoria_Id(idCategoria);
+
+                return produtos.stream()
+                                .map(produto -> new ProdutoResponseDTO(produto))
+                                .collect(Collectors.toList());
+        }
+
+        /**
+         * Busca produtos por categoria com paginação
+         */
+        public Page<ProdutoResponseDTO> buscarProdutosPorCategoriaPaginado(Integer idCategoria, Pageable pageable) {
+
+                // Valida se a categoria existe
+                catRepository.findById(idCategoria)
+                        .orElseThrow(() -> new NoSuchElementException(
+                                "Categoria não encontrada com ID: " + idCategoria));
+
+                Page<Produto> produtos = pRepository.findByCategoria_Id(idCategoria, pageable);
+
+                return produtos.map(produto -> new ProdutoResponseDTO(produto));
+        }
+
         public Produto findById(Integer idProduto) {
                 Produto produtos = pRepository.findById(idProduto)
                                 .orElseThrow(

@@ -13,7 +13,8 @@ public record ItemPedidoResponseDTO(
         String nomeProduto,
         BigDecimal precoUnitario,
         Integer quantidade,
-        BigDecimal subtotal
+        BigDecimal subtotal,
+        QRCodeResponseDTO qrCode
 ) {
     public ItemPedidoResponseDTO(ItemPedido item) {
         this(
@@ -22,7 +23,9 @@ public record ItemPedidoResponseDTO(
                 item.getProduto().getNome(),
                 item.getPrecoUnitario(),
                 item.getQuantidade(),
-                item.calcularSubtotal()
+                item.calcularSubtotal(),
+                item.getQrCodeRastreamento() != null ? 
+                    new QRCodeResponseDTO(item.getQrCodeRastreamento()) : null
         );
     }
 }

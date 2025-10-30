@@ -22,4 +22,14 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
      * Busca produtos por nome com paginação
      */
     Page<Produto> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    /**
+     * Busca produtos por categoria
+     */
+    List<Produto> findByCategoria_Id(Integer idCategoria);
+
+    /**
+     * Busca produtos por categoria com paginação
+     */
+    Page<Produto> findByCategoria_Id(Integer idCategoria, Pageable pageable);
 }
