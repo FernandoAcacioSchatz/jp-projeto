@@ -12,7 +12,7 @@ public record ClienteResponseDTO(
         this(
                 cliente.getIdCliente(),
                 cliente.getNomeCliente(),
-                cliente.getUser().getEmail(), // Sua lógica de mapeamento é preservada
+                cliente.getUser().getEmail(),
                 cliente.getTelefone());
     }
-}
+}   

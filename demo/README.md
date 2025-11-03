@@ -1,4 +1,4 @@
-# 🛒 Sistema de E-commerce - API REST
+# Sistema de E-commerce - API REST
 
 [![Java](https://img.shields.io/badge/Java-21-orange)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen)](https://spring.io/projects/spring-boot)
@@ -8,9 +8,28 @@
 
 Sistema completo de e-commerce desenvolvido com Spring Boot, incluindo gestão de produtos, clientes, fornecedores, carrinho de compras, pedidos e pagamentos (PIX e Cartão).
 
----
+## Índice
 
-## 📋 Índice
+1. Sobre o Projeto
+2. Funcionalidades
+3. Tecnologias
+4. Segurança
+   - Autenticação JWT
+   - HTTPS
+   - Criptografia
+5. Documentação Técnica
+   - Autenticação e Autorização
+   - Sistema de QR Code
+   - Validações de Documentos
+   - Sistema de Testes
+6. Componentes do Sistema
+   - Sistema de Pagamentos
+   - Gestão de Usuários
+   - Produtos e Estoque
+   - Pedidos e Rastreamento
+7. Melhorias e Atualizações
+8. Guia de Desenvolvimento
+9. Informações do Projeto
 
 - [Sobre o Projeto](#-sobre-o-projeto)
 - [Funcionalidades](#-funcionalidades)

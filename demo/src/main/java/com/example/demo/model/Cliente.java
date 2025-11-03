@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ import lombok.Setter;
 @EqualsAndHashCode(of = "idCliente", callSuper = false)
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Cliente extends Auditable implements Serializable {
 
     @Id
@@ -50,15 +52,18 @@ public class Cliente extends Auditable implements Serializable {
     private String cpf;
 
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Pedido> pedidos = new ArrayList<>();
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Endereco> enderecos = new ArrayList<>();
 
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Carrinho carrinho;
 
     @OneToOne(cascade = CascadeType.ALL) // IMPORTANTE: Cascade ALL
-    @JoinColumn(name = "user_id", referencedColumnName = "id_user")
+    @JoinColumn(name = "user_id", referencedColumnName = "id_user", nullable = false)
+    @jakarta.validation.constraints.NotNull(message = "O usuário é obrigatório")
     private User user;
 }
