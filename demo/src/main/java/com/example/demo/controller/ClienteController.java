@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,10 +42,6 @@ public class ClienteController {
 
     }
 
-    /**
-     * Endpoint para listagem paginada de clientes
-     * Exemplo: GET /cliente/paginado?page=0&size=10&sort=nomeCliente,asc
-     */
     @GetMapping("/paginado")
     public ResponseEntity<Page<ClienteResponseDTO>> findAllPaginado(
             @PageableDefault(size = 10, sort = "nomeCliente") Pageable pageable) {
@@ -55,6 +52,7 @@ public class ClienteController {
     }
 
     @GetMapping(value = "/{idCliente}")
+    @PreAuthorize("hasRole('CLIENTE') and @clienteService.isOwner(authentication, #idCliente)")
     public ResponseEntity<ClienteResponseDTO> buscarPorIdCliente(@PathVariable Integer idCliente) {
 
         Cliente cliente = cService.findById(idCliente);
@@ -76,11 +74,11 @@ public class ClienteController {
 
         ClienteResponseDTO responseDto = new ClienteResponseDTO(novoCliente);
 
-        // 4. RETORNA A RESPOSTA RESTful COMPLETA (201 + Location + Corpo)
         return ResponseEntity.created(uri).body(responseDto);
     }
 
     @PutMapping(value = "/{idCliente}")
+    @PreAuthorize("hasRole('CLIENTE') and @clienteService.isOwner(authentication, #idCliente)")
     public ResponseEntity<ClienteResponseDTO> atualizarCliente(@PathVariable Integer idCliente,
             @Valid @RequestBody ClienteRequestDTO dto) {
 
@@ -92,6 +90,7 @@ public class ClienteController {
     }
 
     @DeleteMapping(value = "/{idCliente}")
+    @PreAuthorize("hasRole('CLIENTE') and @clienteService.isOwner(authentication, #idCliente)")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer idCliente) {
 
         cService.deletarCliente(idCliente);
@@ -99,19 +98,15 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Endpoint para alteração de senha com validação da senha atual
-     * POST /cliente/{idCliente}/alterar-senha
-     */
     @PostMapping(value = "/{idCliente}/alterar-senha")
+    @PreAuthorize("hasRole('CLIENTE') and @clienteService.isOwner(authentication, #idCliente)")
     public ResponseEntity<Void> alterarSenha(
             @PathVariable Integer idCliente,
             @Valid @RequestBody AlterarSenhaDTO dto) {
 
-        // Valida se as senhas conferem
         if (!dto.senhasConferem()) {
             throw new com.example.demo.exception.RegraNegocioException(
-                "A nova senha e a confirmação não conferem.");
+                    "A nova senha e a confirmação não conferem.");
         }
 
         cService.alterarSenhaComValidacao(dto.senhaAtual(), dto.novaSenha(), idCliente);

@@ -24,10 +24,6 @@ public class PagamentoController {
         this.pixService = pixService;
     }
 
-    /**
-     * 💰 GET /pagamento/pix/{idPedido}
-     * Busca dados do pagamento PIX de um pedido
-     */
     @GetMapping("/pix/{idPedido}")
     public ResponseEntity<PagamentoPixResponseDTO> buscarPixDoPedido(@PathVariable Integer idPedido) {
 
@@ -36,13 +32,8 @@ public class PagamentoController {
         return ResponseEntity.ok(new PagamentoPixResponseDTO(pagamentoPix));
     }
 
-    /**
-     * ✅ POST /pagamento/pix/{idPedido}/confirmar
-     * Webhook para confirmar pagamento PIX
-     * (Em produção, seria chamado pela instituição financeira)
-     */
     @PostMapping("/pix/{idPedido}/confirmar")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")  // Apenas admin ou sistema pode confirmar
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PagamentoPixResponseDTO> confirmarPagamento(
             @PathVariable Integer idPedido,
             @RequestBody ConfirmarPixDTO dto) {
@@ -52,20 +43,14 @@ public class PagamentoController {
         return ResponseEntity.ok(new PagamentoPixResponseDTO(pagamentoPix));
     }
 
-    /**
-     * 🔍 GET /pagamento/pix/{idPedido}/status
-     * Verifica status atual do pagamento PIX
-     */
     @GetMapping("/pix/{idPedido}/status")
     public ResponseEntity<PagamentoPixResponseDTO> verificarStatus(@PathVariable Integer idPedido) {
 
         PagamentoPix pagamentoPix = pixService.buscarPorPedido(idPedido);
 
-        // Verifica se expirou e atualiza status
         if (pagamentoPix.isExpirado() && 
             pagamentoPix.getStatusPagamento() == com.example.demo.model.StatusPagamentoPix.PENDENTE) {
             pagamentoPix.expirarPagamento();
-            // TODO: Salvar no banco
         }
 
         return ResponseEntity.ok(new PagamentoPixResponseDTO(pagamentoPix));

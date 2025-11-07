@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+// 1. ADICIONE A IMPORTAÇÃO DO SEU MODELO 'User'
+import com.example.demo.model.User; 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,8 +37,25 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    // --- ESTE MÉTODO FOI MODIFICADO ---
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        
+        // 1. Converte o UserDetails genérico para sua classe User específica
+        User user = (User) userDetails; 
+
+        // 2. Cria o mapa de claims
+        Map<String, Object> extraClaims = new HashMap<>();
+        
+        // 3. ADICIONA OS CLAIMS QUE FALTAVAM
+        //    (Assumindo que seu User.java tem o método .getId())
+        extraClaims.put("userId", user.getId()); 
+        extraClaims.put("email", user.getEmail()); 
+        extraClaims.put("perfil", user.getRoles()); 
+        // Você pode adicionar mais claims se quiser:
+        // extraClaims.put("role", user.getAuthorities().iterator().next().getAuthority());
+        
+        // 4. Chama o método generateToken com os claims
+        return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
@@ -44,6 +63,7 @@ public class JwtService {
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
+        // Refresh tokens geralmente não precisam de claims extras
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
@@ -54,7 +74,7 @@ public class JwtService {
     ) {
         return Jwts
                 .builder()
-                .claims(extraClaims)
+                .claims(extraClaims) // Agora o token terá o "userId"
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
@@ -89,4 +109,3 @@ public class JwtService {
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, "HmacSHA256");
     }
 }
-

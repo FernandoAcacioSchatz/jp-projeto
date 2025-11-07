@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.util.CnpjValidator;
 
-@Service
+@Service("fornecedorService")
 public class FornecedorService {
 
     private final FornecedorRepository fRepository;
@@ -100,6 +101,7 @@ public class FornecedorService {
         novoFornecedor.setNome(dto.nome());
         novoFornecedor.setCnpj(cnpjLimpo); // Armazena CNPJ sem formatação
         novoFornecedor.setTelefone(dto.telefone());
+        novoFornecedor.setEstado(dto.estado());
         novoFornecedor.setUser(novoUser);
 
         try {
@@ -184,6 +186,24 @@ public class FornecedorService {
         
         // Para hard delete (exclusão física), use:
         // fRepository.delete(fornecedorParaDeletar);
+    }
+
+    public boolean isOwner(Authentication auth, Integer idFornecedor) {
+        // 1. Pega o email (username) do usuário logado no token
+        String emailDoUsuarioLogado = auth.getName();
+
+        // 2. Busca o fornecedor pelo ID que está sendo acessado
+        Fornecedor fornecedor = findById(idFornecedor);
+
+        // 3. Verifica se o usuário associado ao fornecedor existe
+        User userDoFornecedor = fornecedor.getUser();
+        if (userDoFornecedor == null) {
+            // Se o fornecedor não tiver usuário, ninguém é dono
+            return false;
+        }
+
+        // 4. Compara o email do usuário logado com o email do dono do fornecedor
+        return emailDoUsuarioLogado.equals(userDoFornecedor.getEmail());
     }
 
 }

@@ -183,10 +183,21 @@ public class ClienteService {
 
         // Soft delete - apenas marca como deletado
         clienteParaDeletar.markAsDeleted();
-        cRepository.save(clienteParaDeletar);
+        //cRepository.save(clienteParaDeletar);
         
         // Para hard delete (exclusão física), use:
-        // cRepository.delete(clienteParaDeletar);
+         cRepository.delete(clienteParaDeletar);
+    }
+
+    public boolean isOwner(org.springframework.security.core.Authentication authentication, Integer idCliente) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false;
+        }
+
+        String emailAutenticado = authentication.getName();
+        Cliente cliente = findById(idCliente);
+
+        return cliente.getUser() != null && cliente.getUser().getEmail().equals(emailAutenticado);
     }
 
 }

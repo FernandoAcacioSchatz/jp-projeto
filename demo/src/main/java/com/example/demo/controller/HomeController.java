@@ -8,17 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Controller para a página inicial (raiz) da API
- */
 @RestController
 @RequestMapping("/")
 public class HomeController {
 
-    /**
-     * Endpoint público da raiz da API
-     * Retorna informações sobre a API e endpoints disponíveis
-     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> home() {
         Map<String, Object> response = new HashMap<>();
@@ -45,14 +38,12 @@ public class HomeController {
         endpointsProtegidos.put("Atualizar Produto", "PUT /produto/{id} (apenas fornecedor dono)");
         endpointsProtegidos.put("Deletar Produto", "DELETE /produto/{id} (apenas fornecedor dono)");
         
-        // Carrinho de Compras (apenas clientes)
         endpointsProtegidos.put("Ver Carrinho", "GET /carrinho (apenas cliente)");
         endpointsProtegidos.put("Adicionar ao Carrinho", "POST /carrinho/item (apenas cliente)");
         endpointsProtegidos.put("Atualizar Item Carrinho", "PATCH /carrinho/item/{id}?quantidade=X (apenas cliente)");
         endpointsProtegidos.put("Remover Item Carrinho", "DELETE /carrinho/item/{id} (apenas cliente)");
         endpointsProtegidos.put("Limpar Carrinho", "DELETE /carrinho (apenas cliente)");
         
-        // Pedidos
         endpointsProtegidos.put("Criar Pedido", "POST /pedido (cliente - cria do carrinho)");
         endpointsProtegidos.put("Ver Pedido", "GET /pedido/{id} (cliente/fornecedor)");
         endpointsProtegidos.put("Meus Pedidos", "GET /pedido/meus-pedidos (apenas cliente)");

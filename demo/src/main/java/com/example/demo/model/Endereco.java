@@ -88,8 +88,13 @@ public class Endereco extends Auditable implements Serializable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", nullable = false)
+    @JoinColumn(name = "id_cliente", nullable = true)
     private Cliente cliente;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_fornecedor", nullable = true)
+    private Fornecedor fornecedor;
 
     /**
      * Retorna endereço formatado para exibição

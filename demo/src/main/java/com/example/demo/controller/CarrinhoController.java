@@ -21,10 +21,6 @@ import com.example.demo.service.CarrinhoService;
 
 import jakarta.validation.Valid;
 
-/**
- * Controller para gerenciamento do carrinho de compras
- * Apenas clientes autenticados podem acessar
- */
 @RestController
 @RequestMapping("/carrinho")
 public class CarrinhoController {

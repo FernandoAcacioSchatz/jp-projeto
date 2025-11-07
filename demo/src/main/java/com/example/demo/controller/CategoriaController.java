@@ -25,9 +25,6 @@ import com.example.demo.service.CategoriaService;
 
 import jakarta.validation.Valid;
 
-/**
- * Controller REST para gerenciamento de Categorias
- */
 @RestController
 @RequestMapping("/categoria")
 public class CategoriaController {
@@ -38,20 +35,12 @@ public class CategoriaController {
         this.categoriaService = categoriaService;
     }
 
-    /**
-     * Lista todas as categorias (sem paginação)
-     * Acesso: Qualquer usuário autenticado
-     */
     @GetMapping
     public ResponseEntity<List<CategoriaResponseDTO>> listarTodas() {
         List<CategoriaResponseDTO> categorias = categoriaService.listarTodasCategorias();
         return ResponseEntity.ok(categorias);
     }
 
-    /**
-     * Lista todas as categorias com paginação
-     * Acesso: Qualquer usuário autenticado
-     */
     @GetMapping("/paginado")
     public ResponseEntity<Page<CategoriaResponseDTO>> listarTodasPaginado(
             @PageableDefault(size = 10, sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
@@ -59,20 +48,12 @@ public class CategoriaController {
         return ResponseEntity.ok(categorias);
     }
 
-    /**
-     * Busca uma categoria por ID
-     * Acesso: Qualquer usuário autenticado
-     */
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponseDTO> buscarPorId(@PathVariable Integer id) {
         Categoria categoria = categoriaService.findById(id);
         return ResponseEntity.ok(new CategoriaResponseDTO(categoria));
     }
 
-    /**
-     * Cria uma nova categoria
-     * Acesso: Apenas FORNECEDOR ou ADMIN
-     */
     @PostMapping
     @PreAuthorize("hasAnyRole('FORNECEDOR', 'ADMIN')")
     public ResponseEntity<CategoriaResponseDTO> criar(@Valid @RequestBody CategoriaRequestDTO dto) {
@@ -80,10 +61,6 @@ public class CategoriaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new CategoriaResponseDTO(novaCategoria));
     }
 
-    /**
-     * Atualiza uma categoria existente
-     * Acesso: Apenas FORNECEDOR ou ADMIN
-     */
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('FORNECEDOR', 'ADMIN')")
     public ResponseEntity<CategoriaResponseDTO> atualizar(
@@ -93,10 +70,6 @@ public class CategoriaController {
         return ResponseEntity.ok(new CategoriaResponseDTO(categoriaAtualizada));
     }
 
-    /**
-     * Deleta uma categoria (soft delete)
-     * Acesso: Apenas ADMIN
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {

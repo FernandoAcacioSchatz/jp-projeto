@@ -33,95 +33,64 @@ public class CartaoController {
         this.cartaoService = cartaoService;
     }
 
-    /**
-     * 💳 POST /cartao?idCliente={id}
-     * Cadastra um novo cartão para o cliente
-     * Requer: ROLE_CLIENTE
-     */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
     public ResponseEntity<CartaoResponseDTO> cadastrarCartao(
             @RequestBody @Valid CartaoRequestDTO dto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // TODO: Pegar idCliente do usuário autenticado
-        // Por enquanto, recebe via parâmetro ou assume ID fixo
-        Integer idCliente = 1; // TEMPORÁRIO
+        Integer idCliente = 1; 
 
         CartaoResponseDTO response = cartaoService.cadastrarCartao(idCliente, dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * 📋 GET /cartao?idCliente={id}
-     * Lista todos os cartões do cliente
-     * Requer: ROLE_CLIENTE
-     */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
     public ResponseEntity<List<CartaoResumoDTO>> listarCartoes(
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // TODO: Pegar idCliente do usuário autenticado
-        Integer idCliente = 1; // TEMPORÁRIO
+        Integer idCliente = 1; 
 
         List<CartaoResumoDTO> cartoes = cartaoService.listarCartoesDoCliente(idCliente);
 
         return ResponseEntity.ok(cartoes);
     }
 
-    /**
-     * 🔍 GET /cartao/{id}
-     * Busca um cartão específico
-     * Requer: ROLE_CLIENTE
-     */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
     public ResponseEntity<CartaoResponseDTO> buscarPorId(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // TODO: Pegar idCliente do usuário autenticado
-        Integer idCliente = 1; // TEMPORÁRIO
+        Integer idCliente = 1; 
 
         CartaoResponseDTO cartao = cartaoService.buscarPorId(id, idCliente);
 
         return ResponseEntity.ok(cartao);
     }
 
-    /**
-     * ⭐ PUT /cartao/{id}/principal
-     * Define um cartão como principal
-     * Requer: ROLE_CLIENTE
-     */
     @PutMapping("/{id}/principal")
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
     public ResponseEntity<CartaoResponseDTO> definirComoPrincipal(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // TODO: Pegar idCliente do usuário autenticado
-        Integer idCliente = 1; // TEMPORÁRIO
+        Integer idCliente = 1; 
 
         CartaoResponseDTO cartao = cartaoService.definirComoPrincipal(id, idCliente);
 
         return ResponseEntity.ok(cartao);
     }
 
-    /**
-     * 🗑️ DELETE /cartao/{id}
-     * Remove um cartão
-     * Requer: ROLE_CLIENTE
-     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
     public ResponseEntity<Void> removerCartao(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // TODO: Pegar idCliente do usuário autenticado
-        Integer idCliente = 1; // TEMPORÁRIO
+        Integer idCliente = 1; 
 
         cartaoService.removerCartao(id, idCliente);
 

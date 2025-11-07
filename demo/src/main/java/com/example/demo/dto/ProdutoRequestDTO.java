@@ -18,7 +18,8 @@ public record ProdutoRequestDTO(
         @NotNull(message = "O preço é obrigatório") @Positive(message = "O preço deve ser positivo") 
         BigDecimal preco,
 
-        @NotNull(message = "O estoque é obrigatório") @PositiveOrZero(message = "O estoque não pode ser negativo") Integer estoque,
+        @NotNull(message = "O estoque é obrigatório") @PositiveOrZero(message = "O estoque não pode ser negativo") 
+        Integer estoque,
 
         @NotNull(message = "O ID da categoria é obrigatório") 
         Integer idCategoria) {

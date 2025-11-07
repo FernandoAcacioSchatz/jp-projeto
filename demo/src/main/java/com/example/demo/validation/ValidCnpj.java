@@ -9,10 +9,6 @@ import java.lang.annotation.Target;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-/**
- * Anotação para validação de CNPJ
- * Verifica se o CNPJ é válido através dos dígitos verificadores
- */
 @Documented
 @Constraint(validatedBy = CnpjValidatorConstraint.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })

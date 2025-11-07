@@ -58,7 +58,7 @@ public class Fornecedor extends Auditable implements Serializable {
     @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Produto> produtos;
 
-    @OneToMany(mappedBy = "fornecedores", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Endereco> enderecos = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)

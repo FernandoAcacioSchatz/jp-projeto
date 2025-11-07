@@ -14,7 +14,7 @@ import com.example.demo.repository.UserRepository;
  * 
  * DESABILITADO: Usando usuário em memória definido no application.properties
  */
-// @Service // COMENTADO - Para usar usuário fixo root/aluno
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -29,6 +29,12 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        // --- INÍCIO DA DEPURAÇÃO ---
+        System.out.println("----------------------------------------------------");
+        System.out.println("Tentando carregar usuário pelo email: " + email);
+        System.out.println("----------------------------------------------------");
+        // --- FIM DA DEPURAÇÃO ---
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Usuário não encontrado com o email: " + email));

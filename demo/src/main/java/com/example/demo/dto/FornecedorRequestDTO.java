@@ -1,9 +1,11 @@
 package com.example.demo.dto;
 
+import com.example.demo.model.EstadosBrasileiros;
 import com.example.demo.validation.ValidCnpj;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 
@@ -26,6 +28,9 @@ public record FornecedorRequestDTO(
     String cnpj,
 
     @NotBlank(message = "O telefone é Obrigatório")
-    String telefone
+    String telefone,
+
+    @NotNull(message = "O estado é Obrigatório")
+    EstadosBrasileiros estado
 ) {
 }
