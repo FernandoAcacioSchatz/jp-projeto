@@ -41,10 +41,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO); 
     }
 
-    /**
-     * Endpoint para listagem paginada de produtos
-     * Exemplo: GET /produto/paginado?page=0&size=10&sort=nome,asc
-     */
+    
     @GetMapping("/paginado")
     public ResponseEntity<Page<ProdutoResponseDTO>> listarTodosProdutosPaginado(
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
@@ -54,10 +51,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO);
     }
 
-    /**
-     * Endpoint para buscar produtos por nome (busca parcial)
-     * Exemplo: GET /produto/buscar?nome=notebook
-     */
+
     @GetMapping("/buscar")
     public ResponseEntity<List<ProdutoResponseDTO>> buscarProdutosPorNome(
             @RequestParam String nome) {
@@ -67,10 +61,6 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO);
     }
 
-    /**
-     * Endpoint para buscar produtos por nome com paginação
-     * Exemplo: GET /produto/buscar/paginado?nome=notebook&page=0&size=10
-     */
     @GetMapping("/buscar/paginado")
     public ResponseEntity<Page<ProdutoResponseDTO>> buscarProdutosPorNomePaginado(
             @RequestParam String nome,
@@ -81,10 +71,6 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO);
     }
 
-    /**
-     * Endpoint para buscar produtos por categoria
-     * Exemplo: GET /produto/categoria/1
-     */
     @GetMapping("/categoria/{idCategoria}")
     public ResponseEntity<List<ProdutoResponseDTO>> buscarProdutosPorCategoria(
             @PathVariable Integer idCategoria) {
@@ -94,10 +80,6 @@ public class ProdutoController {
         return ResponseEntity.ok(produtosDTO);
     }
 
-    /**
-     * Endpoint para buscar produtos por categoria com paginação
-     * Exemplo: GET /produto/categoria/1/paginado?page=0&size=10
-     */
     @GetMapping("/categoria/{idCategoria}/paginado")
     public ResponseEntity<Page<ProdutoResponseDTO>> buscarProdutosPorCategoriaPaginado(
             @PathVariable Integer idCategoria,

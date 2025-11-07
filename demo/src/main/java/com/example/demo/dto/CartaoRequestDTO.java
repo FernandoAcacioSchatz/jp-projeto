@@ -8,12 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-/**
- * DTO para cadastrar novo cartão
- * 
- * ⚠️ IMPORTANTE: Este DTO recebe os últimos 4 dígitos para mascarar.
- * Em produção, use gateway de pagamento (Stripe, PagSeguro) e não trafegue dados de cartão!
- */
+
 public record CartaoRequestDTO(
 
         @NotBlank(message = "Os últimos 4 dígitos do cartão são obrigatórios")

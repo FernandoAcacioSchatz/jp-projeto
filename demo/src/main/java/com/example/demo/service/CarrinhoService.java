@@ -75,7 +75,7 @@ public class CarrinhoService {
                 .findFirst();
 
         if (itemExistente.isPresent()) {
-            // Atualiza a quantidade se o produto já estiver no carrinho
+        
             ItemCarrinho item = itemExistente.get();
             int novaQuantidade = item.getQuantidade() + dto.quantidade();
 
@@ -115,7 +115,7 @@ public class CarrinhoService {
                 .findFirst()
                 .orElseThrow(() -> new RegraNegocioException("Item não encontrado no carrinho."));
 
-        // Verifica estoque
+       
         if (item.getProduto().getEstoque() < novaQuantidade) {
             throw new RegraNegocioException("Estoque insuficiente. Disponível: " + item.getProduto().getEstoque());
         }

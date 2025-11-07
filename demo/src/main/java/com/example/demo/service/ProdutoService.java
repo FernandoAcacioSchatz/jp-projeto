@@ -43,9 +43,6 @@ public class ProdutoService {
                                 .collect(Collectors.toList());
         }
 
-        /**
-         * Lista todos os produtos com paginação
-         */
         public Page<ProdutoResponseDTO> listarTodosProdutosPaginado(Pageable pageable) {
 
                 Page<Produto> produtos = pRepository.findAll(pageable);
@@ -53,9 +50,6 @@ public class ProdutoService {
                 return produtos.map(produto -> new ProdutoResponseDTO(produto));
         }
 
-        /**
-         * Busca produtos por nome (busca parcial, case-insensitive)
-         */
         public List<ProdutoResponseDTO> buscarProdutosPorNome(String nome) {
 
                 List<Produto> produtos = pRepository.findByNomeContainingIgnoreCase(nome);
@@ -65,9 +59,6 @@ public class ProdutoService {
                                 .collect(Collectors.toList());
         }
 
-        /**
-         * Busca produtos por nome com paginação
-         */
         public Page<ProdutoResponseDTO> buscarProdutosPorNomePaginado(String nome, Pageable pageable) {
 
                 Page<Produto> produtos = pRepository.findByNomeContainingIgnoreCase(nome, pageable);
@@ -75,15 +66,11 @@ public class ProdutoService {
                 return produtos.map(produto -> new ProdutoResponseDTO(produto));
         }
 
-        /**
-         * Busca produtos por categoria
-         */
         public List<ProdutoResponseDTO> buscarProdutosPorCategoria(Integer idCategoria) {
 
-                // Valida se a categoria existe
                 catRepository.findById(idCategoria)
-                        .orElseThrow(() -> new NoSuchElementException(
-                                "Categoria não encontrada com ID: " + idCategoria));
+                                .orElseThrow(() -> new NoSuchElementException(
+                                                "Categoria não encontrada com ID: " + idCategoria));
 
                 List<Produto> produtos = pRepository.findByCategoria_Id(idCategoria);
 
@@ -92,15 +79,11 @@ public class ProdutoService {
                                 .collect(Collectors.toList());
         }
 
-        /**
-         * Busca produtos por categoria com paginação
-         */
         public Page<ProdutoResponseDTO> buscarProdutosPorCategoriaPaginado(Integer idCategoria, Pageable pageable) {
 
-                // Valida se a categoria existe
                 catRepository.findById(idCategoria)
-                        .orElseThrow(() -> new NoSuchElementException(
-                                "Categoria não encontrada com ID: " + idCategoria));
+                                .orElseThrow(() -> new NoSuchElementException(
+                                                "Categoria não encontrada com ID: " + idCategoria));
 
                 Page<Produto> produtos = pRepository.findByCategoria_Id(idCategoria, pageable);
 
@@ -135,13 +118,14 @@ public class ProdutoService {
 
                 novoProduto.setFornecedor(fornecedorLogado);
 
-        Produto produtoSalvo = pRepository.save(novoProduto);
+                Produto produtoSalvo = pRepository.save(novoProduto);
 
-        return new ProdutoResponseDTO(produtoSalvo);
+                return new ProdutoResponseDTO(produtoSalvo);
         }
 
         @Transactional
-        public ProdutoResponseDTO atualizarProduto(Integer idProduto, ProdutoRequestDTO dto, String emailUsuarioLogado) {
+        public ProdutoResponseDTO atualizarProduto(Integer idProduto, ProdutoRequestDTO dto,
+                        String emailUsuarioLogado) {
 
                 Produto produtoExistente = findById(idProduto);
 
@@ -192,12 +176,9 @@ public class ProdutoService {
                         throw new RuntimeException("Você não tem permissão para deletar este produto.");
                 }
 
-                // Soft delete - apenas marca como deletado
                 produtoExistente.markAsDeleted();
                 pRepository.save(produtoExistente);
-                
-                // Para hard delete (exclusão física), use:
-                // pRepository.delete(produtoExistente);
+
         }
 
 }

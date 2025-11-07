@@ -33,10 +33,6 @@ public class RastreamentoController {
         this.qrCodeRepository = qrCodeRepository;
     }
 
-    /**
-     * 🔍 GET /rastreamento/{codigo}
-     * Retorna informações de rastreamento pelo código
-     */
     @GetMapping("/{codigo}")
     public ResponseEntity<QRCodeResponseDTO> buscarPorCodigo(@PathVariable String codigo) {
         

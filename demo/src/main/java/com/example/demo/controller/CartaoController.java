@@ -39,7 +39,7 @@ public class CartaoController {
             @RequestBody @Valid CartaoRequestDTO dto,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Integer idCliente = 1; 
+        Integer idCliente = 1;
 
         CartaoResponseDTO response = cartaoService.cadastrarCartao(idCliente, dto);
 
@@ -51,7 +51,7 @@ public class CartaoController {
     public ResponseEntity<List<CartaoResumoDTO>> listarCartoes(
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Integer idCliente = 1; 
+        Integer idCliente = 1;
 
         List<CartaoResumoDTO> cartoes = cartaoService.listarCartoesDoCliente(idCliente);
 
@@ -64,12 +64,14 @@ public class CartaoController {
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Integer idCliente = 1; 
+        Integer idCliente = 1;
 
         CartaoResponseDTO cartao = cartaoService.buscarPorId(id, idCliente);
 
         return ResponseEntity.ok(cartao);
     }
+
+
 
     @PutMapping("/{id}/principal")
     @PreAuthorize("hasRole('ROLE_CLIENTE')")
@@ -77,7 +79,7 @@ public class CartaoController {
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Integer idCliente = 1; 
+        Integer idCliente = 1;
 
         CartaoResponseDTO cartao = cartaoService.definirComoPrincipal(id, idCliente);
 
@@ -90,7 +92,7 @@ public class CartaoController {
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        Integer idCliente = 1; 
+        Integer idCliente = 1;
 
         cartaoService.removerCartao(id, idCliente);
 

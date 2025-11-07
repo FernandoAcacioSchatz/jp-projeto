@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import com.example.demo.model.Produto;
 import java.math.BigDecimal;
 
-/**
- * DTO para enviar dados de Produto para o frontend de forma segura.
- */
+
 public record ProdutoResponseDTO(
 
         Integer id,

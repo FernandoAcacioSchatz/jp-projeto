@@ -6,9 +6,7 @@ import java.util.stream.Collectors;
 
 import com.example.demo.model.Carrinho;
 
-/**
- * DTO de resposta para o carrinho completo
- */
+
 public record CarrinhoResponseDTO(
         Integer id,
         Integer idCliente,

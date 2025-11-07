@@ -16,15 +16,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-/**
- * Handler global para tratamento centralizado de exceções
- */
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Tratamento de erros de validação (Bean Validation)
-     */
+    
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException ex,
@@ -47,9 +43,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Tratamento de CPF inválido
-     */
+    
     @ExceptionHandler(CpfException.class)
     public ResponseEntity<ErrorResponse> handleCpfException(
             CpfException ex,
@@ -65,9 +59,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Tratamento de CNPJ inválido
-     */
+   
     @ExceptionHandler(CnpjException.class)
     public ResponseEntity<ErrorResponse> handleCnpjException(
             CnpjException ex,
@@ -83,9 +75,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Tratamento de email inválido ou duplicado
-     */
+   
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<ErrorResponse> handleEmailException(
             EmailException ex,
@@ -101,9 +91,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Tratamento de recurso não encontrado
-     */
+   
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(
             NoSuchElementException ex,
@@ -119,9 +107,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    /**
-     * Tratamento de regras de negócio
-     */
     @ExceptionHandler(RegraNegocioException.class)
     public ResponseEntity<ErrorResponse> handleRegraNegocioException(
             RegraNegocioException ex,
@@ -137,9 +122,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    /**
-     * Tratamento específico para Role não encontrada (erro de configuração)
-     */
+   
     @ExceptionHandler(RoleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRoleNotFoundException(
             RoleNotFoundException ex,
@@ -155,9 +138,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    /**
-     * Tratamento de erros de integridade do banco de dados
-     */
+    
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
             DataIntegrityViolationException ex,
@@ -165,7 +146,6 @@ public class GlobalExceptionHandler {
 
         String message = "Erro de integridade de dados. Verifique se não há violação de constraint ou dados duplicados.";
 
-        // Tenta extrair mensagem mais específica
         if (ex.getMessage() != null) {
             if (ex.getMessage().contains("Duplicate entry")) {
                 message = "Dados duplicados. Este registro já existe no sistema.";
@@ -184,13 +164,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // TRATAMENTOS DE AUTENTICAÇÃO E AUTORIZAÇÃO
-    // ═══════════════════════════════════════════════════════════════
-
-    /**
-     * Tratamento de credenciais inválidas (login/senha incorretos)
-     */
+   
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(
             BadCredentialsException ex,
@@ -206,9 +180,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
-    /**
-     * Tratamento de credenciais inválidas (exceção customizada)
-     */
+    
     @ExceptionHandler(CredenciaisInvalidasException.class)
     public ResponseEntity<ErrorResponse> handleCredenciaisInvalidas(
             CredenciaisInvalidasException ex,
@@ -224,9 +196,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
-    /**
-     * Tratamento de acesso negado (sem permissão)
-     */
+  
     @ExceptionHandler({AccessDeniedException.class, AcessoNegadoException.class})
     public ResponseEntity<ErrorResponse> handleAccessDenied(
             Exception ex,
@@ -242,9 +212,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
-    /**
-     * Tratamento de token JWT inválido ou expirado
-     */
+   
     @ExceptionHandler(TokenInvalidoException.class)
     public ResponseEntity<ErrorResponse> handleTokenInvalido(
             TokenInvalidoException ex,
@@ -260,9 +228,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
-    /**
-     * Tratamento genérico de erros de autenticação
-     */
+   
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex,
@@ -278,13 +244,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // TRATAMENTOS DE NEGÓCIO ESPECÍFICOS
-    // ═══════════════════════════════════════════════════════════════
-
-    /**
-     * Tratamento de dados duplicados
-     */
+   
     @ExceptionHandler(DadosDuplicadosException.class)
     public ResponseEntity<ErrorResponse> handleDadosDuplicados(
             DadosDuplicadosException ex,
@@ -300,9 +260,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    /**
-     * Tratamento de estoque insuficiente
-     */
+    
     @ExceptionHandler(EstoqueInsuficienteException.class)
     public ResponseEntity<Map<String, Object>> handleEstoqueInsuficiente(
             EstoqueInsuficienteException ex,
@@ -321,9 +279,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
-    /**
-     * Tratamento de exceções genéricas
-     */
+ 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(
             Exception ex,
@@ -343,9 +299,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    /**
-     * Classe interna para padronizar respostas de erro
-     */
     public static class ErrorResponse {
         private LocalDateTime timestamp;
         private int status;

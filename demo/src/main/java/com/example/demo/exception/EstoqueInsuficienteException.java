@@ -1,8 +1,5 @@
 package com.example.demo.exception;
 
-/**
- * Exceção para estoque insuficiente
- */
 public class EstoqueInsuficienteException extends RuntimeException {
     
     private String nomeProduto;

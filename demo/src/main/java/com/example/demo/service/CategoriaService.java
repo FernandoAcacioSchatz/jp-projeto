@@ -24,9 +24,7 @@ public class CategoriaService {
         this.categoriaRepository = categoriaRepository;
     }
 
-    /**
-     * Busca uma categoria por ID
-     */
+    
     public Categoria findById(Integer idCategoria) {
         return categoriaRepository
                 .findById(idCategoria)
@@ -34,9 +32,7 @@ public class CategoriaService {
                         "Categoria " + idCategoria + " não encontrada! Tipo: " + Categoria.class.getName()));
     }
 
-    /**
-     * Lista todas as categorias
-     */
+   
     public List<CategoriaResponseDTO> listarTodasCategorias() {
         List<Categoria> categorias = categoriaRepository.findAll();
         return categorias.stream()
@@ -44,20 +40,16 @@ public class CategoriaService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lista todas as categorias com paginação
-     */
+  
     public Page<CategoriaResponseDTO> listarTodasCategoriasPaginado(Pageable pageable) {
         Page<Categoria> categorias = categoriaRepository.findAll(pageable);
         return categorias.map(CategoriaResponseDTO::new);
     }
 
-    /**
-     * Cria uma nova categoria
-     */
+    
     public Categoria inserirCategoria(CategoriaRequestDTO dto) {
         
-        // Verifica se já existe uma categoria com este nome
+       
         if (categoriaRepository.findByNomeIgnoreCase(dto.nome()).isPresent()) {
             throw new RegraNegocioException("Já existe uma categoria com o nome '" + dto.nome() + "'.");
         }
@@ -73,14 +65,12 @@ public class CategoriaService {
         }
     }
 
-    /**
-     * Atualiza uma categoria existente
-     */
+    
     public Categoria alterarCategoria(CategoriaRequestDTO dto, Integer idCategoria) {
         
         Categoria categoriaExistente = this.findById(idCategoria);
 
-        // Verifica se o novo nome já está sendo usado por outra categoria
+        
         if (dto.nome() != null && !dto.nome().equals(categoriaExistente.getNome())) {
             categoriaRepository.findByNomeIgnoreCase(dto.nome()).ifPresent(c -> {
                 if (!c.getId().equals(idCategoria)) {
@@ -97,14 +87,12 @@ public class CategoriaService {
         return categoriaRepository.save(categoriaExistente);
     }
 
-    /**
-     * Deleta uma categoria (soft delete)
-     */
+   
     public void deletarCategoria(Integer idCategoria) {
         
         Categoria categoriaParaDeletar = this.findById(idCategoria);
 
-        // Verifica se existem produtos associados
+   
         if (categoriaParaDeletar.getQuantidadeProdutos() > 0) {
             throw new RegraNegocioException(
                 "Não é possível deletar a categoria '" + categoriaParaDeletar.getNome() + 
@@ -113,7 +101,7 @@ public class CategoriaService {
             );
         }
 
-        // Soft delete
+       
         categoriaParaDeletar.markAsDeleted();
         categoriaRepository.save(categoriaParaDeletar);
         

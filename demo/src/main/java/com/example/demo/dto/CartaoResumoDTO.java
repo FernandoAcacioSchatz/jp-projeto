@@ -3,9 +3,6 @@ package com.example.demo.dto;
 import com.example.demo.model.BandeiraCartao;
 import com.example.demo.model.Cartao;
 
-/**
- * DTO resumido para listagens de cartões
- */
 public record CartaoResumoDTO(
         Integer id,
         String numeroMascarado,

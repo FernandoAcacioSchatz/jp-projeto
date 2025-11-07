@@ -6,9 +6,7 @@ import java.time.LocalDateTime;
 import com.example.demo.model.PagamentoPix;
 import com.example.demo.model.StatusPagamentoPix;
 
-/**
- * DTO de resposta com dados do pagamento PIX
- */
+
 public record PagamentoPixResponseDTO(
         Integer id,
         Integer idPedido,

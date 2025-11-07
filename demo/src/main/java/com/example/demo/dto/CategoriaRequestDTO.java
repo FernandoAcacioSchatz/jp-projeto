@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO para requisições de criação e atualização de Categoria
- */
+
 public record CategoriaRequestDTO(
     
     @NotBlank(message = "O nome da categoria não pode estar vazio.")

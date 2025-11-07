@@ -53,9 +53,6 @@ public class FornecedorService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lista todos os fornecedores com paginação
-     */
     public Page<FornecedorResponseDTO> listarTodosFornecedoresPaginado(Pageable pageable) {
 
         Page<Fornecedor> fornecedores = fRepository.findAll(pageable);
@@ -77,10 +74,8 @@ public class FornecedorService {
             throw new EmailException("Email já cadastrado no sistema.");
         }
 
-        // Remove formatação do CNPJ para validação e armazenamento
         String cnpjLimpo = CnpjValidator.removeFormat(dto.cnpj());
 
-        // Valida o CNPJ (dígitos verificadores)
         if (!CnpjValidator.isValid(cnpjLimpo)) {
             throw new CnpjException("CNPJ inválido. Verifique os dígitos informados.");
         }
@@ -99,7 +94,7 @@ public class FornecedorService {
 
         Fornecedor novoFornecedor = new Fornecedor();
         novoFornecedor.setNome(dto.nome());
-        novoFornecedor.setCnpj(cnpjLimpo); // Armazena CNPJ sem formatação
+        novoFornecedor.setCnpj(cnpjLimpo); 
         novoFornecedor.setTelefone(dto.telefone());
         novoFornecedor.setEstado(dto.estado());
         novoFornecedor.setUser(novoUser);
@@ -153,9 +148,7 @@ public class FornecedorService {
 
     }
 
-    /**
-     * Altera a senha do fornecedor validando a senha atual
-     */
+
     public void alterarSenhaComValidacao(String senhaAtual, String novaSenha, Integer idFornecedor) {
 
         Fornecedor fornecedor = this.findById(idFornecedor);
@@ -165,12 +158,12 @@ public class FornecedorService {
             throw new RegraNegocioException("Usuário associado ao fornecedor não encontrado.");
         }
 
-        // Valida a senha atual
+       
         if (!passwordEncoder.matches(senhaAtual, user.getSenha())) {
             throw new RegraNegocioException("Senha atual incorreta.");
         }
 
-        // Atualiza para a nova senha
+       
         user.setSenha(passwordEncoder.encode(novaSenha));
 
         userRepository.save(user);
@@ -180,29 +173,28 @@ public class FornecedorService {
 
         Fornecedor fornecedorParaDeletar = this.findById(idFornecedor);
 
-        // Soft delete - apenas marca como deletado
+        
         fornecedorParaDeletar.markAsDeleted();
         fRepository.save(fornecedorParaDeletar);
-        
+
         // Para hard delete (exclusão física), use:
         // fRepository.delete(fornecedorParaDeletar);
     }
 
     public boolean isOwner(Authentication auth, Integer idFornecedor) {
-        // 1. Pega o email (username) do usuário logado no token
+      
         String emailDoUsuarioLogado = auth.getName();
 
-        // 2. Busca o fornecedor pelo ID que está sendo acessado
+        
         Fornecedor fornecedor = findById(idFornecedor);
 
-        // 3. Verifica se o usuário associado ao fornecedor existe
         User userDoFornecedor = fornecedor.getUser();
         if (userDoFornecedor == null) {
-            // Se o fornecedor não tiver usuário, ninguém é dono
+          
             return false;
         }
 
-        // 4. Compara o email do usuário logado com o email do dono do fornecedor
+        
         return emailDoUsuarioLogado.equals(userDoFornecedor.getEmail());
     }
 

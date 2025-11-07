@@ -9,9 +9,7 @@ import com.example.demo.model.Pedido;
 import com.example.demo.model.StatusPedido;
 import com.example.demo.model.TipoPagamento;
 
-/**
- * DTO de resposta para pedido completo
- */
+
 public record PedidoResponseDTO(
         Integer id,
         LocalDateTime dataPedido,

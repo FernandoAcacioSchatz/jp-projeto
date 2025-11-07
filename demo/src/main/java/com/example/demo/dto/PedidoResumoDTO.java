@@ -7,9 +7,7 @@ import com.example.demo.model.Pedido;
 import com.example.demo.model.StatusPedido;
 import com.example.demo.model.TipoPagamento;
 
-/**
- * DTO de resposta resumida para listagem de pedidos
- */
+
 public record PedidoResumoDTO(
         Integer id,
         LocalDateTime dataPedido,

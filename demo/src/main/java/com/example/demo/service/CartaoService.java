@@ -27,9 +27,6 @@ public class CartaoService {
         this.clienteRepository = clienteRepository;
     }
 
-    /**
-     * Cadastra um novo cartão para o cliente
-     */
     @Transactional
     public CartaoResponseDTO cadastrarCartao(Integer idCliente, CartaoRequestDTO dto) {
 

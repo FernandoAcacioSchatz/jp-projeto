@@ -2,9 +2,7 @@ package com.example.demo.dto;
 
 import com.example.demo.model.Categoria;
 
-/**
- * DTO para resposta de Categoria
- */
+
 public record CategoriaResponseDTO(
     Integer id,
     String nome,

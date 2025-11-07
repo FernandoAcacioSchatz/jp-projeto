@@ -10,8 +10,5 @@ import com.example.demo.model.Categoria;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
 
-    /**
-     * Busca uma categoria pelo nome (case insensitive)
-     */
     Optional<Categoria> findByNomeIgnoreCase(String nome);
 }

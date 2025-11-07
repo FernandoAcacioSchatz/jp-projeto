@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-/**
- * DTO para adicionar item ao carrinho
- */
+
 public record AdicionarItemCarrinhoDTO(
         
         @NotNull(message = "O ID do produto é obrigatório")

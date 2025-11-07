@@ -2,9 +2,7 @@ package com.example.demo.dto;
 
 import com.example.demo.model.QRCodeRastreamento;
 
-/**
- * DTO de resposta para QR Code de rastreamento
- */
+
 public record QRCodeResponseDTO(
     String codigoRastreamento,
     String qrcodeBase64,

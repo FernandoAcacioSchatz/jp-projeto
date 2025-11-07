@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 
 import com.example.demo.model.ItemPedido;
 
-/**
- * DTO de resposta para item do pedido
- */
+
 public record ItemPedidoResponseDTO(
         Integer id,
         Integer idProduto,

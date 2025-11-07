@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import com.example.demo.model.Endereco;
 import com.example.demo.model.EstadosBrasileiros;
 
-/**
- * DTO para resposta de Endereço
- */
+
 public record EnderecoResponseDTO(
     Integer idEndereco,
     String apelido,

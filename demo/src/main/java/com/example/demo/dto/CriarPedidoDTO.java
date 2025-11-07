@@ -4,9 +4,7 @@ import com.example.demo.model.TipoPagamento;
 
 import jakarta.validation.constraints.NotNull;
 
-/**
- * DTO para criação de pedido com informações de pagamento e endereço
- */
+
 public record CriarPedidoDTO(
     
     @NotNull(message = "O tipo de pagamento é obrigatório")

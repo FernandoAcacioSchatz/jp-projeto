@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 
 import com.example.demo.model.ItemCarrinho;
 
-/**
- * DTO de resposta para item do carrinho
- */
+
 public record ItemCarrinhoResponseDTO(
         Integer id,
         Integer idProduto,

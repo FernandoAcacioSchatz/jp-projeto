@@ -7,9 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO para requisições de criação e atualização de Endereço
- */
+
 public record EnderecoRequestDTO(
     
     @NotBlank(message = "O apelido do endereço é obrigatório (ex: Casa, Trabalho)")

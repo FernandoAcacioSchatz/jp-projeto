@@ -3,9 +3,7 @@ package com.example.demo.dto;
 import com.example.demo.model.BandeiraCartao;
 import com.example.demo.model.Cartao;
 
-/**
- * DTO de resposta com dados seguros do cartão
- */
+
 public record CartaoResponseDTO(
         Integer id,
         String numeroMascarado,

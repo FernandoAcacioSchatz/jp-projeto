@@ -1,7 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Fornecedor;
-import com.example.demo.model.EstadosBrasileiros; // Importe seu Enum de Estados
+import com.example.demo.model.EstadosBrasileiros; 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
