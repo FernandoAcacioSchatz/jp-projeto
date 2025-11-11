@@ -25,9 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Representa um endereço associado a um cliente
- */
 @Entity
 @Table(name = "tb_endereco")
 @Getter
@@ -48,7 +45,7 @@ public class Endereco extends Auditable implements Serializable {
     @NotBlank(message = "O apelido do endereço é obrigatório (ex: Casa, Trabalho)")
     @Size(min = 3, max = 50, message = "O apelido deve ter entre 3 e 50 caracteres")
     @Column(nullable = false, length = 50)
-    private String apelido; // Ex: "Casa", "Trabalho", "Casa da Mãe"
+    private String apelido;
 
     @NotBlank(message = "O CEP é obrigatório")
     @Pattern(regexp = "\\d{5}-?\\d{3}", message = "CEP inválido. Use o formato: 12345-678")
@@ -84,7 +81,7 @@ public class Endereco extends Auditable implements Serializable {
     private EstadosBrasileiros estado;
 
     @Column(name = "is_principal", nullable = false)
-    private Boolean isPrincipal = false; // Endereço principal do cliente
+    private Boolean isPrincipal = false;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -96,9 +93,6 @@ public class Endereco extends Auditable implements Serializable {
     @JoinColumn(name = "id_fornecedor", nullable = true)
     private Fornecedor fornecedor;
 
-    /**
-     * Retorna endereço formatado para exibição
-     */
     public String getEnderecoCompleto() {
         StringBuilder sb = new StringBuilder();
         sb.append(rua).append(", ").append(numero);
@@ -106,9 +100,9 @@ public class Endereco extends Auditable implements Serializable {
             sb.append(" - ").append(complemento);
         }
         sb.append(", ").append(bairro)
-          .append(", ").append(cidade)
-          .append(" - ").append(estado)
-          .append(", CEP: ").append(cep);
+                .append(", ").append(cidade)
+                .append(" - ").append(estado)
+                .append(", CEP: ").append(cep);
         return sb.toString();
     }
 }

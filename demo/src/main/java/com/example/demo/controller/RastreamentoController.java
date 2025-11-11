@@ -43,11 +43,7 @@ public class RastreamentoController {
         return ResponseEntity.ok(new QRCodeResponseDTO(qrCode));
     }
 
-    /**
-     * 📦 GET /rastreamento/pedido/{idPedido}
-     * Lista todos os QR Codes de rastreamento de um pedido
-     * Requer autenticação (CLIENTE ou ADMIN)
-     */
+   
     @GetMapping("/pedido/{idPedido}")
     @PreAuthorize("hasAnyRole('ROLE_CLIENTE', 'ROLE_ADMIN')")
     public ResponseEntity<List<QRCodeResponseDTO>> listarPorPedido(@PathVariable Integer idPedido) {
@@ -66,10 +62,7 @@ public class RastreamentoController {
         return ResponseEntity.ok(dtos);
     }
 
-    /**
-     * 📥 GET /rastreamento/{codigo}/download
-     * Faz download do arquivo PNG do QR Code
-     */
+ 
     @GetMapping("/{codigo}/download")
     public ResponseEntity<Resource> downloadQRCode(@PathVariable String codigo) {
         
@@ -106,10 +99,7 @@ public class RastreamentoController {
         }
     }
 
-    /**
-     * 📄 GET /rastreamento/{codigo}/conteudo
-     * Retorna o conteúdo de texto completo do QR Code (para debug/visualização)
-     */
+ 
     @GetMapping("/{codigo}/conteudo")
     public ResponseEntity<String> visualizarConteudo(@PathVariable String codigo) {
         
